@@ -1,148 +1,38 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Fixed Audio Editor 2024</title>
-    <style>
-        :root { --accent: #ff0055; --bg: #0b0b0d; }
-        body { font-family: sans-serif; background: var(--bg); color: #fff; margin: 0; display: flex; height: 100vh; }
-        .side { width: 350px; background: #16161a; padding: 20px; border-right: 1px solid #333; overflow-y: auto; }
-        .main { flex: 1; display: flex; align-items: center; justify-content: center; background: #000; }
-        label { display: block; font-size: 11px; color: #888; margin-top: 15px; }
-        input, textarea, select { width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 5px; margin-top: 5px; box-sizing: border-box; }
-        .btn { background: var(--accent); border: none; color: #fff; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; }
-        #modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; padding: 20px; border: 1px solid #555; display: none; width: 500px; z-index: 100; }
-        #out { width: 100%; height: 150px; background: #000; color: #0f9; font-family: monospace; font-size: 10px; }
-    </style>
+<meta charset="UTF-8">
+<title>AUDIOPLAYER1 Editor</title>
+<link rel="stylesheet" href="editor.css">
 </head>
+
 <body>
+<h1>AUDIOPLAYER1 — Редактор</h1>
 
-<div class="side">
-    <h2 style="color:#00d4ff; font-size:16px;">КОНСТРУКТОР ПЛЕЕРА</h2>
-    <label>GitHub Root Folder</label>
-    <input type="text" id="gh" value="https://lindtjulia1-web.github.io/AUDIOPLAYER1/">
-    
-    <label>Акцент (Цвет 1)</label><input type="color" id="c1" value="#ff0055">
-    <label>Доп. цвет (Цвет 2)</label><input type="color" id="c2" value="#00d4ff">
-    
-    <label>Язык интерфейса</label>
-    <select id="ln">
-        <option value="RU">Русский</option>
-        <option value="DE">Deutsch</option>
-        <option value="EN">English</option>
-    </select>
+<section class="panel">
+  <label>JSON с треками (GitHub raw)</label>
+  <input id="json" placeholder="https://raw.githubusercontent.com/.../tracks.json">
 
-    <label>Плейлист (Имя | файл)</label>
-    <textarea id="ts" rows="5">Track 01 | 1.mp3
-Track 02 | 2.mp3
-Track 03 | 3.mp3</textarea>
+  <label>Основной цвет</label>
+  <input type="color" id="accent" value="#00e5ff">
 
-    <button class="btn" onclick="pre()">ОБНОВИТЬ ПРЕДПРОСМОТР</button>
-    <button class="btn" style="background:#00d4ff; color:#000" onclick="gen()">ПОЛУЧИТЬ КОД</button>
-</div>
+  <label>Язык</label>
+  <select id="lang">
+    <option value="de">Deutsch</option>
+    <option value="en">English</option>
+    <option value="ru">Русский</option>
+  </select>
 
-<div class="main" id="m"></div>
+  <button id="update">Обновить предпросмотр</button>
+</section>
 
-<div id="modal">
-    <b style="color:var(--accent)">Код для Genially:</b>
-    <textarea id="out" readonly onclick="this.select()"></textarea>
-    <button class="btn" onclick="document.getElementById('modal').style.display='none'">ЗАКРЫТЬ</button>
-</div>
+<h2>Предпросмотр</h2>
+<iframe id="preview"></iframe>
 
-<script>
-function build(isGen) {
-    const gh = document.getElementById('gh').value;
-    const c1 = document.getElementById('c1').value;
-    const c2 = document.getElementById('c2').value;
-    const ln = document.getElementById('ln').value;
-    const ts = document.getElementById('ts').value.split('\n').filter(t=>t.includes('|')).map(t=>{
-        const p=t.split('|'); return {n:p[0].trim(), f:p[1].trim()};
-    });
+<h2>Код для Genially</h2>
+<textarea id="code"></textarea>
+<button id="copy">Копировать</button>
 
-    const txt = {
-        RU: {l:"СПИСОК", r:"РАНДОМ"},
-        DE: {l:"LISTE", r:"ZUFALL"},
-        EN: {l:"PLAYLIST", r:"SHUFFLE"}
-    }[ln];
-
-    // Генерируем HTML-код плеера
-    let h = `<!DOCTYPE html><html><head><meta charset="UTF-8">
-<style>
-:root { --p:${c1}; --s:${c2}; }
-body { background:transparent; margin:0; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; overflow:hidden; }
-.pb { width:460px; height:260px; background:rgba(20,20,20,0.95); border:3px solid #333; border-radius:20px; display:flex; padding:15px; box-sizing:border-box; color:#fff; position:relative; }
-.lp { width:130px; border-right:1px solid #444; display:flex; align-items:center; justify-content:center; }
-.vi { width:100px; height:100px; border-radius:50%; background:radial-gradient(circle,#555,#000); border:4px solid #111; position:relative; animation:r 4s linear infinite; animation-play-state:paused; }
-.vi::after { content:""; position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; background:conic-gradient(transparent,var(--p),transparent,var(--s),transparent); opacity:0.3; }
-@keyframes r { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-.rp { flex:1; padding-left:15px; display:flex; flex-direction:column; }
-.sc { background:#000; border-radius:12px; padding:12px; flex:1; border:1px solid #222; }
-.tm { color:var(--s); font-size:26px; font-weight:bold; font-family:monospace; }
-.vz { display:flex; align-items:flex-end; gap:2px; height:30px; border-bottom:1px solid #222; margin:5px 0; }
-.br { flex:1; background:var(--s); height:2px; }
-.controls { display:grid; grid-template-columns: repeat(3,1fr); gap:5px; margin-top:10px; }
-.btn { background:#222; border:1px solid #444; color:var(--s); padding:8px; cursor:pointer; border-radius:5px; font-size:10px; font-weight:bold; }
-#pl { position:absolute; top:0; left:0; width:100%; height:100%; background:#111; display:none; padding:15px; box-sizing:border-box; border-radius:18px; z-index:10; }
-</style></head><body>
-<div class="pb">
-    <div class="lp"><div class="vi" id="d"></div></div>
-    <div class="rp">
-        <div class="sc">
-            <div id="t" style="color:var(--p); font-size:9px;">READY</div>
-            <div class="tm" id="c">00:00</div>
-            <div class="vz" id="v"></div>
-            <input type="range" style="width:100%; accent-color:var(--p)" min="0" max="1" step="0.01" oninput="a.volume=this.value">
-        </div>
-        <div class="controls">
-            <button class="btn" onclick="m(-1)">⏮</button>
-            <button class="btn" id="pB" onclick="tg()">▶</button>
-            <button class="btn" onclick="m(1)">⏭</button>
-            <button class="btn" onclick="l()">${txt.l}</button>
-            <button class="btn" id="rB" onclick="rd()" style="grid-column:span 2">${txt.r}</button>
-        </div>
-    </div>
-    <div id="pl">
-        <div style="display:flex;justify-content:space-between;color:var(--p);margin-bottom:10px;font-size:12px;"><b>LIST</b><span onclick="l()" style="cursor:pointer">✕</span></div>
-        <div id="lst" style="overflow-y:auto;height:170px;font-size:11px;"></div>
-    </div>
-</div>
-<script>
-const B="${gh}", T=${JSON.stringify(ts)};
-let ci=0, iP=false, iR=false; const a=new Audio();
-const disk=document.getElementById('d'), v=document.getElementById('v');
-for(let i=0;i<20;i++){ let b=document.createElement('div'); b.className='br'; v.appendChild(b); }
-function ld(i){ ci=i; a.src=B+T[ci].f; document.getElementById('t').innerText=T[ci].n; }
-function tg(){ if(iP){ a.pause(); document.getElementById('pB').innerText="▶"; disk.style.animationPlayState="paused"; } 
-else { a.play(); document.getElementById('pB').innerText="⏸"; disk.style.animationPlayState="running"; } iP=!iP; }
-function m(s){ if(iR)ci=Math.floor(Math.random()*T.length); else ci=(ci+s+T.length)%T.length; ld(ci); if(iP)a.play(); }
-function rd(){ iR=!iR; document.getElementById('rB').style.color=iR?"var(--p)":"var(--s)"; }
-function l(){ const el=document.getElementById('pl'); el.style.display=el.style.display==="block"?"none":"block";
-document.getElementById('lst').innerHTML=T.map((t,i)=>'<div onclick="ld('+i+');tg();l()" style="padding:8px;border-bottom:1px solid #222;cursor:pointer;color:'+(i===ci?'var(--p)':'#fff')+'">'+t.n+'</div>').join(''); }
-a.ontimeupdate=()=>{ 
-    let mi=Math.floor(a.currentTime/60), se=Math.floor(a.currentTime%60);
-    document.getElementById('c').innerText=mi+":"+(se<10?"0":"")+se;
-    if(iP)document.querySelectorAll('.br').forEach(b=>b.style.height=(Math.random()*25+2)+"px");
-};
-ld(0);
-<\/script></body></html>`;
-    return h;
-}
-
-function pre() {
-    const h = build();
-    const blob = new Blob([h], {type: 'text/html'});
-    const url = URL.createObjectURL(blob);
-    document.getElementById('m').innerHTML = `<iframe src="${url}" width="480" height="280" frameborder="0"></iframe>`;
-}
-
-function gen() {
-    const h = build();
-    const b64 = btoa(unescape(encodeURIComponent(h)));
-    document.getElementById('out').value = `<iframe width="500" height="320" src="data:text/html;base64,${b64}" frameborder="0" scrolling="no" style="background:transparent;"></iframe>`;
-    document.getElementById('modal').style.display = 'block';
-}
-
-window.onload = pre;
-</script>
+<script src="editor.js"></script>
 </body>
 </html>
