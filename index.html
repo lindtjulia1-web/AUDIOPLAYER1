@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Genially Player Fix (Base64 Encode)</title>
+    <title>Genially Player Constructor (Classic)</title>
     <style>
         :root { --accent: #ff0055; --bg: #0b0b0d; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
@@ -26,7 +26,7 @@
 
 <div class="sidebar">
     <h1>Configurator</h1>
-    <label>GitHub Root (Raw)</label>
+    <label>GitHub Root (Raw URL)</label>
     <input type="text" id="ghPath" value="https://lindtjulia1-web.github.io/AUDIOPLAYER/">
     
     <div style="display:flex; gap:10px;">
@@ -41,9 +41,10 @@
         <option value="en">English</option>
     </select>
 
-    <label>Playlist (Name|File|Img)</label>
-    <textarea id="tracks" rows="6">Track 01 | track1.mp3 | https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300
-Track 02 | track2.mp3 | https://images.unsplash.com/photo-1493225255756-d9584f8606e9?w=300</textarea>
+    <label>Playlist (Titel | Dateiname.mp3)</label>
+    <textarea id="tracks" rows="10">Track 01 | 1.mp3
+Track 02 | 2.mp3
+    Track 03 | 3.mp3</textarea>
 
     <button class="btn-gen" onclick="generate()">CODE GENERIEREN</button>
 </div>
@@ -67,7 +68,7 @@ Track 02 | track2.mp3 | https://images.unsplash.com/photo-1493225255756-d9584f86
         const lang = document.getElementById('lang').value;
         const tracksArr = document.getElementById('tracks').value.split('\n').filter(t => t.includes('|')).map(t => {
             const p = t.split('|');
-            return { n: p[0].trim(), f: p[1].trim(), i: p[2] ? p[2].trim() : "" };
+            return { n: p[0].trim(), f: p[1].trim() };
         });
 
         const i18n = {
@@ -76,22 +77,20 @@ Track 02 | track2.mp3 | https://images.unsplash.com/photo-1493225255756-d9584f86
             en: { l: "LIST", r: "SHUFFLE", v: "VOL.", n: "NO TRACK" }
         }[lang];
 
-        // Код самого плеера (полностью исправленный)
         const playerHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
 :root { --p: ${c1}; --s: ${c2}; }
 body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; }
 .pb { width: 480px; height: 270px; background: #1a1817; border: 4px solid #2d2a28; border-radius: 20px; display: flex; padding: 15px; box-sizing: border-box; position: relative; color: white; }
 .lp { width: 160px; border-right: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.vi { width: 125px; height: 125px; border-radius: 50%; background: #000; border: 4px solid #111; position: relative; animation: r 6s linear infinite; animation-play-state: paused; overflow: hidden; }
-.vi img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; }
-.vi::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: conic-gradient(var(--p), var(--s), var(--p)); mix-blend-mode: overlay; opacity: 0.4; }
+.vi { width: 125px; height: 125px; border-radius: 50%; background: radial-gradient(circle, #222 10%, #111 15%, #000 70%); border: 5px solid #000; position: relative; animation: r 4s linear infinite; animation-play-state: paused; }
+.vi::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(var(--p), var(--s), var(--p)); opacity: 0.3; }
 @keyframes r { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
 .rp { flex: 1; padding-left: 15px; display: flex; flex-direction: column; }
 .sc { background: #050505; border: 2px solid #222; border-radius: 12px; padding: 12px; flex: 1; display: flex; flex-direction: column; }
-.tt { color: var(--p); font-size: 10px; text-transform: uppercase; height: 14px; overflow: hidden; }
+.tt { color: var(--p); font-size: 10px; text-transform: uppercase; height: 14px; overflow: hidden; font-family: monospace; }
 .tm { color: var(--s); font-size: 22px; font-weight: bold; margin: 5px 0; font-family: monospace; }
 .vz { display: flex; align-items: flex-end; gap: 2px; height: 35px; margin: 5px 0; }
-.br { flex: 1; background: var(--s); height: 2px; }
+.br { flex: 1; background: var(--s); height: 2px; box-shadow: 0 0 5px var(--s); }
 .vb { display: flex; align-items: center; gap: 8px; font-size: 10px; color: #555; }
 .controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
 .btn { background: #252321; border: 1px solid #3d3b39; color: var(--s); padding: 8px; cursor: pointer; border-radius: 6px; font-size: 9px; font-weight: bold; }
@@ -99,7 +98,7 @@ body { background: transparent; margin: 0; display: flex; justify-content: cente
 #pl { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); display: none; padding: 20px; box-sizing: border-box; z-index: 10; border-radius: 20px; }
 </style></head><body>
 <div class="pb">
-    <div class="lp"><div class="vi" id="disk"><img id="cover" src=""></div></div>
+    <div class="lp"><div class="vi" id="disk"></div></div>
     <div class="rp">
         <div class="sc">
             <div class="tt" id="title">${i18n.n}</div>
@@ -125,12 +124,11 @@ body { background: transparent; margin: 0; display: flex; justify-content: cente
     const B = "${ghRaw}", T = ${JSON.stringify(tracksArr)};
     let ci = 0, iP = false, iS = false;
     const audio = new Audio();
-    const disk = document.getElementById('disk'), pBtn = document.getElementById('playBtn'), viz = document.getElementById('viz'), cv = document.getElementById('cover');
+    const disk = document.getElementById('disk'), pBtn = document.getElementById('playBtn'), viz = document.getElementById('viz');
     for(let i=0; i<25; i++) { let b=document.createElement('div'); b.className='br'; viz.appendChild(b); }
     function load(i) { 
         ci=i; audio.src=T[ci].f.startsWith('http') ? T[ci].f : B+T[ci].f; 
         document.getElementById('title').innerText=T[ci].n;
-        cv.src = T[ci].i || 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300';
     }
     function toggle() { 
         if(iP) { audio.pause(); pBtn.innerText="▶"; disk.style.animationPlayState="paused"; } 
@@ -152,7 +150,6 @@ body { background: transparent; margin: 0; display: flex; justify-content: cente
     audio.volume=0.7; load(0);
 <\/script></body></html>`;
 
-        // Кодируем в Base64 для безопасной передачи в iframe
         const base64Code = btoa(unescape(encodeURIComponent(playerHTML)));
         const finalIframe = `<iframe width="500" height="300" src="data:text/html;base64,${base64Code}" frameborder="0" scrolling="no" style="background: transparent;"></iframe>`;
 
