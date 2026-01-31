@@ -1,147 +1,59 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>Ultimate Player Fix</title>
     <style>
-        :root { --accent: #ff0055; --bg: #0b0b0d; --panel: #16161a; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: 380px; background: var(--panel); padding: 20px; border-right: 1px solid #333; overflow-y: auto; z-index: 10; }
-        h1 { font-size: 1rem; color: #00d4ff; text-transform: uppercase; margin: 0 0 15px; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        label { display: block; font-size: 10px; color: #888; margin: 10px 0 5px; text-transform: uppercase; }
-        input, select, textarea { width: 100%; background: #222; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 6px; font-size: 13px; }
-        .btn-gen { background: var(--accent); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 15px; text-transform: uppercase; }
-        .main { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #1a1a1a, #000); position: relative; }
-        #preview-container { border: 2px dashed #444; border-radius: 20px; padding: 20px; background: rgba(255,255,255,0.02); }
-        #modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 650px; background: #111; padding: 25px; border-radius: 20px; border: 1px solid #444; display: none; z-index: 1000; }
-        #codeOut { width: 100%; height: 200px; background: #000; color: #0f9; font-family: monospace; font-size: 11px; padding: 10px; margin-top: 10px; border-radius: 8px; }
-        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display:none; z-index: 999; }
+        :root { --p: #ff0055; --s: #00d4ff; }
+        body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; }
+        .pb { width: 480px; height: 270px; background: rgba(22,20,19,0.98); border: 4px solid #2d2a28; border-radius: 24px; display: flex; padding: 15px; box-sizing: border-box; position: relative; color: white; }
+        .lp { width: 160px; border-right: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .vi { width: 130px; height: 130px; border-radius: 50%; background: radial-gradient(circle, #333, #000); border: 5px solid #111; animation: r 4s linear infinite; animation-play-state: paused; position: relative; }
+        .vi::after { content:''; position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; background: conic-gradient(transparent, var(--p), transparent, var(--s), transparent); opacity: 0.4; }
+        @keyframes r { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
+        .rp { flex: 1; padding-left: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+        .sc { background: #080808; border: 2px solid #222; border-radius: 16px; padding: 15px; flex: 1; }
+        .tm { color: var(--s); font-size: 28px; font-weight: bold; font-family: monospace; }
+        .vz { display: flex; align-items: flex-end; gap: 2px; height: 30px; margin: 8px 0; }
+        .br { flex: 1; background: var(--s); height: 2px; }
+        .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+        .btn { background: #252321; border: 1px solid #3d3b39; color: var(--s); padding: 10px; cursor: pointer; border-radius: 8px; font-size: 14px; }
     </style>
 </head>
 <body>
-
-<div class="sidebar">
-    <h1>Configurator</h1>
-    <label>GitHub Root URL</label>
-    <input type="text" id="ghPath" value="https://lindtjulia1-web.github.io/AUDIOPLAYER1/">
-    <div style="display:flex; gap:10px;">
-        <div style="flex:1"><label>Color 1</label><input type="color" id="c1" value="#ff0055"></div>
-        <div style="flex:1"><label>Color 2</label><input type="color" id="c2" value="#00d4ff"></div>
-    </div>
-    <label>Playlist (Название | файл)</label>
-    <textarea id="tracks" rows="6">Track 01 | 1.mp3
-Track 02 | 2.mp3
-Track 03 | 3.mp3
-Track 04 | 4.mp3</textarea>
-    <button class="btn-gen" onclick="generate()">Обновить и получить код</button>
-</div>
-
-<div class="main">
-    <div id="preview-container">
-        <div id="preview-frame"></div>
-    </div>
-</div>
-
-<div class="overlay" id="ovl" onclick="closeAll()"></div>
-<div id="modal">
-    <h3 style="margin:0; color:var(--accent)">Код для Genially:</h3>
-    <textarea id="codeOut" readonly></textarea>
-    <button class="btn-gen" onclick="closeAll()">Закрыть</button>
-</div>
-
-<script>
-    function generate() {
-        const gh = "https://raw.githubusercontent.com/lindtjulia1-web/AUDIOPLAYER1/main/";
-        const clr1 = document.getElementById('c1').value;
-        const clr2 = document.getElementById('c2').value;
-        const tracks = document.getElementById('tracks').value.split('\n').filter(t => t.includes('|')).map(t => {
-            const p = t.split('|'); return { n: p[0].trim(), f: p[1].trim() };
-        });
-
-        const playerHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-:root { --p: ${clr1}; --s: ${clr2}; }
-body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
-.pb { width: 480px; height: 270px; background: rgba(22,20,19,0.98); border: 4px solid #2d2a28; border-radius: 24px; display: flex; padding: 15px; box-sizing: border-box; position: relative; color: white; }
-.lp { width: 160px; border-right: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.vi { width: 130px; height: 130px; border-radius: 50%; background: radial-gradient(circle, #333 5%, #111 20%, #000 100%); border: 5px solid #111; position: relative; animation: r 4s linear infinite; animation-play-state: paused; }
-.vi::after { content:''; position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; background: conic-gradient(transparent, var(--p), transparent, var(--s), transparent); opacity: 0.4; }
-@keyframes r { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
-.rp { flex: 1; padding-left: 20px; display: flex; flex-direction: column; justify-content: space-between; }
-.sc { background: #080808; border: 2px solid #222; border-radius: 16px; padding: 15px; flex: 1; display: flex; flex-direction: column; }
-.tt { color: var(--p); font-size: 11px; text-transform: uppercase; font-weight: bold; margin-bottom: 5px; }
-.tm { color: var(--s); font-size: 28px; font-weight: bold; font-family: monospace; }
-.vz { display: flex; align-items: flex-end; gap: 2px; height: 30px; margin: 8px 0; border-bottom: 1px solid #222; }
-.br { flex: 1; background: var(--s); height: 2px; transition: 0.15s; }
-.vol { width: 100%; accent-color: var(--p); cursor: pointer; height: 4px; margin-top: 5px; }
-.controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
-.btn { background: #252321; border: 1px solid #3d3b39; color: var(--s); padding: 10px 5px; cursor: pointer; border-radius: 8px; font-size: 10px; font-weight: bold; }
-#plw { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,10,10,0.98); display: none; padding: 25px; box-sizing: border-box; z-index: 10; border-radius: 20px; }
-</style></head><body>
-<div class="pb">
-    <div class="lp"><div class="vi" id="disk"></div><div style="font-size:8px; color:#444; margin-top:10px;">DEUTSCH V.2.0</div></div>
-    <div class="rp">
-        <div class="sc">
-            <div class="tt" id="title">READY</div>
-            <div class="tm" id="clock">00:00</div>
-            <div class="vz" id="viz"></div>
-            <input type="range" class="vol" min="0" max="1" step="0.01" value="0.7" oninput="a.volume=this.value">
-        </div>
-        <div class="controls">
-            <button class="btn" onclick="move(-1)">⏮</button>
-            <button class="btn" id="pB" onclick="toggle()">▶</button>
-            <button class="btn" onclick="move(1)">⏭</button>
-            <button class="btn" onclick="showL()">LISTE</button>
-            <button class="btn" id="shB" onclick="shuf()" style="grid-column: span 2;">ZUFALL</button>
-            <button class="btn" onclick="location.reload()" style="grid-column: span 2;">RESET</button>
+    <div class="pb">
+        <div class="lp"><div class="vi" id="disk"></div></div>
+        <div class="rp">
+            <div class="sc">
+                <div id="title" style="color:var(--p); font-size:10px; text-transform:uppercase;">READY</div>
+                <div class="tm" id="clock">00:00</div>
+                <div class="vz" id="viz"></div>
+                <input type="range" style="width:100%; accent-color:var(--p);" min="0" max="1" step="0.01" value="0.7" oninput="a.volume=this.value">
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="move(-1)">⏮</button>
+                <button class="btn" id="pB" onclick="toggle()">▶</button>
+                <button class="btn" onclick="move(1)">⏭</button>
+            </div>
         </div>
     </div>
-    <div id="plw">
-        <div style="display:flex; justify-content: space-between; color:var(--p); margin-bottom:15px;"><b>PLAYLIST</b><span onclick="showL()" style="cursor:pointer; font-size:20px;">×</span></div>
-        <div id="list" style="overflow-y:auto; height:170px;"></div>
-    </div>
-</div>
-<script>
-    const B = "${gh}", T = ${JSON.stringify(tracks)};
-    let ci = 0, iP = false, iS = false; const a = new Audio();
-    const disk = document.getElementById('disk'), pBtn = document.getElementById('pB'), viz = document.getElementById('viz');
-    for(let i=0; i<20; i++) { let b=document.createElement('div'); b.className='br'; viz.appendChild(b); }
-    function load(i) { ci = i; a.src = B + T[ci].f; document.getElementById('title').innerText = T[ci].n; }
-    function toggle() {
-        if(iP) { a.pause(); pBtn.innerText="▶"; disk.style.animationPlayState="paused"; }
-        else { a.play().then(()=>{ pBtn.innerText="⏸"; disk.style.animationPlayState="running"; }); }
-        iP = !iP;
-    }
-    function move(s) { if(iS) ci = Math.floor(Math.random()*T.length); else ci = (ci + s + T.length) % T.length; load(ci); if(iP) a.play(); }
-    function shuf() { iS = !iS; document.getElementById('shB').style.color = iS ? 'var(--p)' : 'var(--s)'; }
-    function showL() {
-        const w = document.getElementById('plw'); w.style.display = w.style.display === 'block' ? 'none' : 'block';
-        document.getElementById('list').innerHTML = T.map((t,i) => \`<div onclick="load(\${i});toggle();showL();" style="padding:10px; border-bottom:1px solid #222; cursor:pointer; color:\${i===ci?'var(--p)':'white'}">\${t.n}</div>\`).join('');
-    }
-    a.ontimeupdate = () => {
-        let m = Math.floor(a.currentTime/60), s = Math.floor(a.currentTime%60);
-        document.getElementById('clock').innerText = m + ':' + (s<10?'0':'') + s;
-        if(iP) document.querySelectorAll('.br').forEach(b => b.style.height = (Math.random()*25 + 2) + "px");
-    };
-    a.onended = () => move(1); load(0);
-<\/script></body></html>`;
-
-        // Генерируем iframe для Genially
-        const base64 = btoa(unescape(encodeURIComponent(playerHTML)));
-        const finalIframe = `<iframe width="500" height="320" src="data:text/html;base64,${base64}" frameborder="0" scrolling="no" style="background:transparent;"></iframe>`;
-
-        // Обновляем предпросмотр (теперь через blob, чтобы точно работало в браузере)
-        const blob = new Blob([playerHTML], {type: 'text/html'});
-        const url = URL.createObjectURL(blob);
-        document.getElementById('preview-frame').innerHTML = `<iframe src="${url}" width="500" height="320" frameborder="0"></iframe>`;
-
-        document.getElementById('codeOut').value = finalIframe;
-        document.getElementById('ovl').style.display = 'block';
-        document.getElementById('modal').style.display = 'block';
-    }
-    function closeAll() {
-        document.getElementById('ovl').style.display = 'none';
-        document.getElementById('modal').style.display = 'none';
-    }
-</script>
+    <script>
+        const T = [{n:"Track 01", f:"1.mp3"}, {n:"Track 02", f:"2.mp3"}, {n:"Track 03", f:"3.mp3"}, {n:"Track 04", f:"4.mp3"}];
+        let ci=0, iP=false; const a = new Audio();
+        const disk=document.getElementById('disk'), viz=document.getElementById('viz');
+        for(let i=0; i<20; i++) { let b=document.createElement('div'); b.className='br'; viz.appendChild(b); }
+        function load(i) { a.src = T[i].f; document.getElementById('title').innerText = T[i].n; }
+        function toggle() {
+            if(iP) { a.pause(); document.getElementById('pB').innerText="▶"; disk.style.animationPlayState="paused"; }
+            else { a.play(); document.getElementById('pB').innerText="⏸"; disk.style.animationPlayState="running"; }
+            iP = !iP;
+        }
+        function move(s) { ci=(ci+s+T.length)%T.length; load(ci); if(iP) a.play(); }
+        a.ontimeupdate = () => {
+            let m=Math.floor(a.currentTime/60), s=Math.floor(a.currentTime%60);
+            document.getElementById('clock').innerText = m+":"+(s<10?'0':'')+s;
+            if(iP) document.querySelectorAll('.br').forEach(b => b.style.height = (Math.random()*25+2)+"px");
+        };
+        load(0);
+    </script>
 </body>
 </html>
