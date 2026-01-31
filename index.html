@@ -1,74 +1,10 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Плеер-Конструктор для Genially</title>
-    <style>
-        :root { --accent: #ff0055; --bg: #0f0f11; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; display: flex; height: 100vh; }
-        .sidebar { width: 400px; background: #18181b; padding: 25px; border-right: 1px solid #2d2d33; overflow-y: auto; }
-        .main { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; position: relative; }
-        h1 { font-size: 1.2rem; color: #00d4ff; text-transform: uppercase; letter-spacing: 2px; }
-        label { display: block; font-size: 0.7rem; color: #777; margin: 15px 0 5px; text-transform: uppercase; }
-        input, select, textarea { width: 100%; background: #252529; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; box-sizing: border-box; }
-        .btn-gen { background: var(--accent); color: #fff; border: none; padding: 15px; width: 100%; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; }
-        #modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 800px; background: #111; padding: 30px; border-radius: 20px; border: 1px solid #333; display: none; z-index: 1000; }
-        #codeOut { width: 100%; height: 300px; background: #000; color: #00ff95; font-family: monospace; font-size: 12px; padding: 15px; border-radius: 10px; border: 1px solid #222; margin-top: 15px; }
-        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display:none; z-index: 999; }
-    </style>
-</head>
-<body>
-
-<div class="sidebar">
-    <h1>Настройка плеера</h1>
-    
-    <label>Путь к репозиторию (GitHub)</label>
-    <input type="text" id="ghPath" value="https://lindtjulia1-web.github.io/AUDIOPLAYER1/">
-
-    <div style="display: flex; gap: 10px;">
-        <div style="flex:1">
-            <label>Основной цвет</label>
-            <input type="color" id="clr1" value="#ff0055">
-        </div>
-        <div style="flex:1">
-            <label>Доп. цвет</label>
-            <input type="color" id="clr2" value="#00d4ff">
-        </div>
-    </div>
-
-    <label>Язык интерфейса</label>
-    <select id="lang">
-        <option value="ru">Русский</option>
-        <option value="de">Deutsch</option>
-        <option value="en">English</option>
-    </select>
-
-    <label>Список треков (Название | файл)</label>
-    <textarea id="tracks" rows="8">Track 01 | 1.mp3
-Track 02 | 2.mp3
-Track 03 | 3.mp3
-Track 04 | 4.mp3</textarea>
-
-    <button class="btn-gen" onclick="generateCode()">ПОЛУЧИТЬ КОД ДЛЯ GENIALLY</button>
-</div>
-
-<div class="main">
-    <div id="preview">
-        <p style="color: #444;">Здесь будет предпросмотр</p>
-    </div>
-</div>
-
-<div class="overlay" id="overlay" onclick="closeAll()"></div>
-<div id="modal">
-    <h3 style="margin:0; color:#00d4ff">Ваш готовый код:</h3>
-    <textarea id="codeOut" readonly></textarea>
-    <p style="font-size:12px; color:#555; text-align:center">Вставьте этот код в Genially (Вставка -> Другое)</p>
-    <button class="btn-gen" onclick="closeAll()">ЗАКРЫТЬ</button>
-</div>
-
 <script>
     function generateCode() {
-        const gh = document.getElementById('ghPath').value.replace('github.io/', 'raw.githubusercontent.com/').replace('/AUDIOPLAYER1/', '/AUDIOPLAYER1/main/');
+        // Формируем чистую прямую ссылку на файлы GitHub
+        const gh = document.getElementById('ghPath').value
+            .replace('github.io/', 'raw.githubusercontent.com/')
+            .replace('/AUDIOPLAYER1/', '/AUDIOPLAYER1/main/');
+            
         const c1 = document.getElementById('clr1').value;
         const c2 = document.getElementById('clr2').value;
         const lang = document.getElementById('lang').value;
@@ -85,6 +21,7 @@ Track 04 | 4.mp3</textarea>
             en: { list: "PLAYLIST", rnd: "SHUFFLE", vol: "VOL.", none: "NO FILE" }
         }[lang];
 
+        // Генерируем "чистый" HTML код для плеера
         const finalCode = `<!DOCTYPE html>
 <html lang="${lang}">
 <head>
@@ -94,7 +31,7 @@ Track 04 | 4.mp3</textarea>
     body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
     .player-body { width: 480px; height: 270px; background: rgba(26, 24, 23, 0.95); border: 4px solid #2d2a28; border-radius: 20px; display: flex; padding: 15px; box-sizing: border-box; position: relative; color: white; }
     .left-part { width: 160px; border-right: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .vinyl { width: 125px; height: 125px; border-radius: 50%; background: radial-gradient(circle, #222 10%, #000 70%); border: 5px solid #111; position: relative; animation: rotate 4s linear infinite; animation-play-state: paused; }
+    .vinyl { width: 125px; height: 125px; border-radius: 50%; background: radial-gradient(circle, #222 10%, #111 15%, #000 70%); border: 5px solid #111; position: relative; animation: rotate 4s linear infinite; animation-play-state: paused; }
     .vinyl::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(var(--p), var(--s), var(--p)); opacity: 0.3; }
     @keyframes rotate { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
     .right-part { flex: 1; padding-left: 15px; display: flex; flex-direction: column; }
@@ -132,65 +69,54 @@ Track 04 | 4.mp3</textarea>
             <div id="list-content" style="overflow-y:auto; height:180px; font-size:12px;"></div>
         </div>
     </div>
-
 <script>
     const base = "${gh}";
     const tracks = ${JSON.stringify(trackList)};
     let cur = 0, isP = false, isR = false;
     const audio = new Audio();
     const disk = document.getElementById('v-disk'), btnP = document.getElementById('p-play'), viz = document.getElementById('viz');
-
-    // Создаем полоски визуализатора
     for(let i=0; i<25; i++) { let b=document.createElement('div'); b.className='bar'; viz.appendChild(b); }
-
     function loadTrack(i) {
+        if(!tracks[i]) return;
         cur = i;
         audio.src = tracks[cur].f.includes('://') ? tracks[cur].f : base + tracks[cur].f;
         document.getElementById('t-title').innerText = tracks[cur].n;
     }
-
     function playPause() {
         if(isP) { audio.pause(); btnP.innerText="▶"; disk.style.animationPlayState="paused"; }
-        else { audio.play().then(()=>{ btnP.innerText="⏸"; disk.style.animationPlayState="running"; }).catch(e=>alert("Ошибка загрузки файла!")); }
+        else { audio.play().then(()=>{ btnP.innerText="⏸"; disk.style.animationPlayState="running"; }).catch(e=>alert("Файл не найден!")); }
         isP = !isP;
     }
-
     function chTrack(dir) {
         if(isR) cur = Math.floor(Math.random()*tracks.length);
         else cur = (cur + dir + tracks.length) % tracks.length;
         loadTrack(cur); if(isP) audio.play();
     }
-
     function toggleRnd() { isR = !isR; document.getElementById('btn-rnd').classList.toggle('active', isR); }
-    
     function togglePL() {
         const w = document.getElementById('playlist-window');
         w.style.display = w.style.display === 'block' ? 'none' : 'block';
         document.getElementById('list-content').innerHTML = tracks.map((t,i) => \`<div onclick="loadTrack(\${i});playPause();togglePL();" style="padding:8px; border-bottom:1px solid #222; cursor:pointer; color:\${i===cur?'var(--p)':'var(--s)'}">\${t.n}</div>\`).join('');
     }
-
     audio.ontimeupdate = () => {
         let m = Math.floor(audio.currentTime/60), s = Math.floor(audio.currentTime%60);
         document.getElementById('t-clock').innerText = \`\${m}:\${s<10?'0':''}\${s}\`;
         if(isP) document.querySelectorAll('.bar').forEach(b => b.style.height = (Math.random()*30 + 2) + "px");
     };
-
     audio.onended = () => chTrack(1);
     loadTrack(0);
 <\/script>
 </body>
 </html>`;
 
+        // Обновляем окно кода
         document.getElementById('codeOut').value = finalCode;
-        document.getElementById('preview').innerHTML = \`<iframe style="width:500px; height:300px; border:none; background:transparent;" srcdoc="\${finalCode.replace(/"/g, '&quot;')}"></iframe>\`;
+
+        // ИСПРАВЛЕНИЕ ПРЕДПРОСМОТРА: используем Base64 для iframe
+        const base64 = btoa(unescape(encodeURIComponent(finalCode)));
+        document.getElementById('preview').innerHTML = `<iframe style="width:500px; height:300px; border:none;" src="data:text/html;base64,${base64}"></iframe>`;
+        
         document.getElementById('modal').style.display = 'block';
         document.getElementById('overlay').style.display = 'block';
     }
-
-    function closeAll() {
-        document.getElementById('modal').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
-    }
 </script>
-</body>
-</html>
