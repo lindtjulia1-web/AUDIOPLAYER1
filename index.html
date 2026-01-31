@@ -2,152 +2,147 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Audio Master Editor 6.0</title>
+    <title>Fixed Audio Editor 2024</title>
     <style>
-        :root { --accent: #ff0055; --bg: #0b0b0d; --panel: #16161a; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; display: flex; height: 100vh; }
-        .sidebar { width: 380px; background: var(--panel); padding: 25px; border-right: 1px solid #333; overflow-y: auto; display: flex; flex-direction: column; }
-        .main { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #222, #000); }
-        h1 { font-size: 14px; color: #00d4ff; text-transform: uppercase; margin: 0 0 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        label { display: block; font-size: 10px; color: #888; margin: 12px 0 5px; text-transform: uppercase; font-weight: bold; }
-        input, select, textarea { width: 100%; background: #222; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; box-sizing: border-box; font-size: 14px; margin-bottom: 10px; }
-        .btn { background: var(--accent); color: #fff; border: none; padding: 18px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; transition: 0.3s; margin-top: 10px; }
-        .btn:hover { background: #ff3377; transform: translateY(-2px); }
-        #modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 650px; background: #111; padding: 30px; border-radius: 20px; border: 1px solid #333; display: none; z-index: 1000; }
-        #codeOut { width: 100%; height: 200px; background: #000; color: #0f9; font-family: monospace; font-size: 11px; padding: 15px; border-radius: 10px; border: 1px solid #222; }
-        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); display:none; z-index: 999; }
+        :root { --accent: #ff0055; --bg: #0b0b0d; }
+        body { font-family: sans-serif; background: var(--bg); color: #fff; margin: 0; display: flex; height: 100vh; }
+        .side { width: 350px; background: #16161a; padding: 20px; border-right: 1px solid #333; overflow-y: auto; }
+        .main { flex: 1; display: flex; align-items: center; justify-content: center; background: #000; }
+        label { display: block; font-size: 11px; color: #888; margin-top: 15px; }
+        input, textarea, select { width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 5px; margin-top: 5px; box-sizing: border-box; }
+        .btn { background: var(--accent); border: none; color: #fff; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        #modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; padding: 20px; border: 1px solid #555; display: none; width: 500px; z-index: 100; }
+        #out { width: 100%; height: 150px; background: #000; color: #0f9; font-family: monospace; font-size: 10px; }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <h1>Player Constructor</h1>
+<div class="side">
+    <h2 style="color:#00d4ff; font-size:16px;">КОНСТРУКТОР ПЛЕЕРА</h2>
     <label>GitHub Root Folder</label>
-    <input type="text" id="ghPath" value="https://lindtjulia1-web.github.io/AUDIOPLAYER1/">
+    <input type="text" id="gh" value="https://lindtjulia1-web.github.io/AUDIOPLAYER1/">
     
-    <div style="display:flex; gap:10px;">
-        <div style="flex:1"><label>Color 1</label><input type="color" id="c1" value="#ff0055"></div>
-        <div style="flex:1"><label>Color 2</label><input type="color" id="c2" value="#00d4ff"></div>
-    </div>
-
-    <label>Language</label>
-    <select id="lang">
-        <option value="ru">Русский</option>
-        <option value="de">Deutsch</option>
-        <option value="en">English</option>
+    <label>Акцент (Цвет 1)</label><input type="color" id="c1" value="#ff0055">
+    <label>Доп. цвет (Цвет 2)</label><input type="color" id="c2" value="#00d4ff">
+    
+    <label>Язык интерфейса</label>
+    <select id="ln">
+        <option value="RU">Русский</option>
+        <option value="DE">Deutsch</option>
+        <option value="EN">English</option>
     </select>
 
-    <label>Playlist (Name | file.mp3)</label>
-    <textarea id="tracks" rows="6">Track 01 | 1.mp3
+    <label>Плейлист (Имя | файл)</label>
+    <textarea id="ts" rows="5">Track 01 | 1.mp3
 Track 02 | 2.mp3
-Track 03 | 3.mp3
-Track 04 | 4.mp3</textarea>
+Track 03 | 3.mp3</textarea>
 
-    <button class="btn" onclick="update()">Обновить превью</button>
-    <button class="btn" style="background:#00d4ff; color:#000" onclick="getCode()">Получить код iframe</button>
+    <button class="btn" onclick="pre()">ОБНОВИТЬ ПРЕДПРОСМОТР</button>
+    <button class="btn" style="background:#00d4ff; color:#000" onclick="gen()">ПОЛУЧИТЬ КОД</button>
 </div>
 
-<div class="main">
-    <div id="mount"></div>
-</div>
+<div class="main" id="m"></div>
 
-<div class="overlay" id="overlay" onclick="closeM()"></div>
 <div id="modal">
-    <h3 style="margin:0; color:var(--accent)">Код для Genially:</h3>
-    <textarea id="codeOut" readonly></textarea>
-    <button class="btn" onclick="closeM()">Закрыть</button>
+    <b style="color:var(--accent)">Код для Genially:</b>
+    <textarea id="out" readonly onclick="this.select()"></textarea>
+    <button class="btn" onclick="document.getElementById('modal').style.display='none'">ЗАКРЫТЬ</button>
 </div>
 
 <script>
-    function createPlayerHTML() {
-        const gh = document.getElementById('ghPath').value;
-        const clr1 = document.getElementById('c1').value;
-        const clr2 = document.getElementById('c2').value;
-        const lang = document.getElementById('lang').value;
-        const tracks = document.getElementById('tracks').value.split('\n')
-            .filter(t => t.includes('|'))
-            .map(t => { 
-                const p = t.split('|'); 
-                return { n: p[0].trim(), f: p[1].trim() }; 
-            });
+function build(isGen) {
+    const gh = document.getElementById('gh').value;
+    const c1 = document.getElementById('c1').value;
+    const c2 = document.getElementById('c2').value;
+    const ln = document.getElementById('ln').value;
+    const ts = document.getElementById('ts').value.split('\n').filter(t=>t.includes('|')).map(t=>{
+        const p=t.split('|'); return {n:p[0].trim(), f:p[1].trim()};
+    });
 
-        const i18n = {
-            ru: { l: "СПИСОК", r: "РАНДОМ" },
-            de: { l: "LISTE", r: "ZUFALL" },
-            en: { l: "PLAYLIST", r: "SHUFFLE" }
-        }[lang];
+    const txt = {
+        RU: {l:"СПИСОК", r:"РАНДОМ"},
+        DE: {l:"LISTE", r:"ZUFALL"},
+        EN: {l:"PLAYLIST", r:"SHUFFLE"}
+    }[ln];
 
-        // Собираем HTML по кусочкам, чтобы не "сломать" скрипт редактора
-        let h = '<!DOCTYPE html>\n<html lang="'+lang+'">\n<head>\n<meta charset="UTF-8">\n';
-        h += '<style>\n';
-        h += ':root { --p: '+clr1+'; --s: '+clr2+'; }\n';
-        h += 'body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; overflow: hidden; }\n';
-        h += '.pb { width: 480px; height: 270px; background: rgba(25,25,25,0.98); border: 4px solid #333; border-radius: 24px; display: flex; padding: 15px; box-sizing: border-box; color: white; position: relative; }\n';
-        h += '.lp { width: 140px; border-right: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; }\n';
-        h += '.vi { width: 110px; height: 110px; border-radius: 50%; background: radial-gradient(circle, #444, #000); border: 4px solid #111; animation: r 4s linear infinite; animation-play-state: paused; position: relative; }\n';
-        h += '.vi::after { content:""; position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; background: conic-gradient(transparent, var(--p), transparent, var(--s), transparent); opacity: 0.4; }\n';
-        h += '@keyframes r { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }\n';
-        h += '.rp { flex: 1; padding-left: 15px; display: flex; flex-direction: column; }\n';
-        h += '.sc { background: #000; border: 1px solid #222; border-radius: 16px; padding: 15px; flex: 1; display: flex; flex-direction: column; }\n';
-        h += '.tm { color: var(--s); font-size: 28px; font-weight: bold; font-family: monospace; }\n';
-        h += '.vz { display: flex; align-items: flex-end; gap: 2px; height: 30px; margin: 5px 0; border-bottom: 1px solid #222; }\n';
-        h += '.br { flex: 1; background: var(--s); height: 2px; transition: 0.1s; }\n';
-        h += '.controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }\n';
-        h += '.btn { background: #222; border: 1px solid #444; color: var(--s); padding: 8px 2px; cursor: pointer; border-radius: 8px; font-size: 9px; font-weight: bold; }\n';
-        h += '.btn.active { color: var(--p); border-color: var(--p); }\n';
-        h += '#pl { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.98); display:none; padding:20px; box-sizing: border-box; border-radius: 20px; z-index: 10; }\n';
-        h += '</style>\n</head>\n<body>\n';
-        
-        h += '<div class="pb">\n';
-        h += '<div class="lp"><div class="vi" id="disk"></div></div>\n';
-        h += '<div class="rp">\n';
-        h += '<div class="sc"><div id="title" style="color:var(--p); font-size:10px; text-transform:uppercase">READY</div><div class="tm" id="clock">00:00</div><div class="vz" id="viz"></div><input type="range" style="width:100%; accent-color:var(--p)" min="0" max="1" step="0.01" value="0.7" oninput="a.volume=this.value"></div>\n';
-        h += '<div class="controls">\n';
-        h += '<button class="btn" onclick="mv(-1)">⏮</button><button class="btn" id="pB" onclick="tg()">▶</button><button class="btn" onclick="mv(1)">⏭</button><button class="btn" onclick="sl()">'+i18n.l+'</button>\n';
-        h += '<button class="btn" id="rB" onclick="rnd()" style="grid-column: span 2">'+i18n.r+'</button><button class="btn" onclick="location.reload()" style="grid-column: span 2">RESET</button>\n';
-        h += '</div></div>\n';
-        h += '<div id="pl"><div style="display:flex; justify-content: space-between; color:var(--p); margin-bottom:10px"><b>PLAYLIST</b><span onclick="sl()" style="cursor:pointer">✕</span></div><div id="list" style="overflow-y:auto; height:180px"></div></div>\n';
-        h += '</div>\n';
+    // Генерируем HTML-код плеера
+    let h = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>
+:root { --p:${c1}; --s:${c2}; }
+body { background:transparent; margin:0; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; overflow:hidden; }
+.pb { width:460px; height:260px; background:rgba(20,20,20,0.95); border:3px solid #333; border-radius:20px; display:flex; padding:15px; box-sizing:border-box; color:#fff; position:relative; }
+.lp { width:130px; border-right:1px solid #444; display:flex; align-items:center; justify-content:center; }
+.vi { width:100px; height:100px; border-radius:50%; background:radial-gradient(circle,#555,#000); border:4px solid #111; position:relative; animation:r 4s linear infinite; animation-play-state:paused; }
+.vi::after { content:""; position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; background:conic-gradient(transparent,var(--p),transparent,var(--s),transparent); opacity:0.3; }
+@keyframes r { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.rp { flex:1; padding-left:15px; display:flex; flex-direction:column; }
+.sc { background:#000; border-radius:12px; padding:12px; flex:1; border:1px solid #222; }
+.tm { color:var(--s); font-size:26px; font-weight:bold; font-family:monospace; }
+.vz { display:flex; align-items:flex-end; gap:2px; height:30px; border-bottom:1px solid #222; margin:5px 0; }
+.br { flex:1; background:var(--s); height:2px; }
+.controls { display:grid; grid-template-columns: repeat(3,1fr); gap:5px; margin-top:10px; }
+.btn { background:#222; border:1px solid #444; color:var(--s); padding:8px; cursor:pointer; border-radius:5px; font-size:10px; font-weight:bold; }
+#pl { position:absolute; top:0; left:0; width:100%; height:100%; background:#111; display:none; padding:15px; box-sizing:border-box; border-radius:18px; z-index:10; }
+</style></head><body>
+<div class="pb">
+    <div class="lp"><div class="vi" id="d"></div></div>
+    <div class="rp">
+        <div class="sc">
+            <div id="t" style="color:var(--p); font-size:9px;">READY</div>
+            <div class="tm" id="c">00:00</div>
+            <div class="vz" id="v"></div>
+            <input type="range" style="width:100%; accent-color:var(--p)" min="0" max="1" step="0.01" oninput="a.volume=this.value">
+        </div>
+        <div class="controls">
+            <button class="btn" onclick="m(-1)">⏮</button>
+            <button class="btn" id="pB" onclick="tg()">▶</button>
+            <button class="btn" onclick="m(1)">⏭</button>
+            <button class="btn" onclick="l()">${txt.l}</button>
+            <button class="btn" id="rB" onclick="rd()" style="grid-column:span 2">${txt.r}</button>
+        </div>
+    </div>
+    <div id="pl">
+        <div style="display:flex;justify-content:space-between;color:var(--p);margin-bottom:10px;font-size:12px;"><b>LIST</b><span onclick="l()" style="cursor:pointer">✕</span></div>
+        <div id="lst" style="overflow-y:auto;height:170px;font-size:11px;"></div>
+    </div>
+</div>
+<script>
+const B="${gh}", T=${JSON.stringify(ts)};
+let ci=0, iP=false, iR=false; const a=new Audio();
+const disk=document.getElementById('d'), v=document.getElementById('v');
+for(let i=0;i<20;i++){ let b=document.createElement('div'); b.className='br'; v.appendChild(b); }
+function ld(i){ ci=i; a.src=B+T[ci].f; document.getElementById('t').innerText=T[ci].n; }
+function tg(){ if(iP){ a.pause(); document.getElementById('pB').innerText="▶"; disk.style.animationPlayState="paused"; } 
+else { a.play(); document.getElementById('pB').innerText="⏸"; disk.style.animationPlayState="running"; } iP=!iP; }
+function m(s){ if(iR)ci=Math.floor(Math.random()*T.length); else ci=(ci+s+T.length)%T.length; ld(ci); if(iP)a.play(); }
+function rd(){ iR=!iR; document.getElementById('rB').style.color=iR?"var(--p)":"var(--s)"; }
+function l(){ const el=document.getElementById('pl'); el.style.display=el.style.display==="block"?"none":"block";
+document.getElementById('lst').innerHTML=T.map((t,i)=>'<div onclick="ld('+i+');tg();l()" style="padding:8px;border-bottom:1px solid #222;cursor:pointer;color:'+(i===ci?'var(--p)':'#fff')+'">'+t.n+'</div>').join(''); }
+a.ontimeupdate=()=>{ 
+    let mi=Math.floor(a.currentTime/60), se=Math.floor(a.currentTime%60);
+    document.getElementById('c').innerText=mi+":"+(se<10?"0":"")+se;
+    if(iP)document.querySelectorAll('.br').forEach(b=>b.style.height=(Math.random()*25+2)+"px");
+};
+ld(0);
+<\/script></body></html>`;
+    return h;
+}
 
-        h += '<script>\n';
-        h += 'const B = "'+gh+'", T = ' + JSON.stringify(tracks) + ';\n';
-        h += 'let ci=0, iP=false, iR=false; const a = new Audio();\n';
-        h += 'const d=document.getElementById("disk"), pB=document.getElementById("pB"), vz=document.getElementById("viz");\n';
-        h += 'for(let i=0; i<25; i++) { let b=document.createElement("div"); b.className="br"; vz.appendChild(b); }\n';
-        h += 'function ld(i) { ci=i; a.src = T[ci].f.includes("://") ? T[ci].f : B + T[ci].f; document.getElementById("title").innerText = T[ci].n; }\n';
-        h += 'function tg() { if(iP){ a.pause(); pB.innerText="▶"; d.style.animationPlayState="paused"; } else { a.play().then(()=>{ pB.innerText="⏸"; d.style.animationPlayState="running"; }); } iP=!iP; }\n';
-        h += 'function mv(s) { if(iR) ci=Math.floor(Math.random()*T.length); else ci=(ci+s+T.length)%T.length; ld(ci); if(iP) a.play(); }\n';
-        h += 'function rnd() { iR=!iR; document.getElementById("rB").classList.toggle("active", iR); }\n';
-        h += 'function sl() { const w=document.getElementById("pl"); w.style.display=w.style.display==="block"?"none":"block"; document.getElementById("list").innerHTML = T.map((t,i) => `<div onclick="ld(${i});if(!iP)tg();else a.play();sl();" style="padding:10px; border-bottom:1px solid #222; cursor:pointer; color:${i===ci?"var(--p)":"white"}">\${t.n}</div>`).join(""); }\n';
-        h += 'a.ontimeupdate = () => { let m=Math.floor(a.currentTime/60), s=Math.floor(a.currentTime%60); document.getElementById("clock").innerText = m+":"+(s<10?"0":"")+s; if(iP) document.querySelectorAll(".br").forEach(b => b.style.height = (Math.random()*25+2)+"px"); };\n';
-        h += 'a.onended = () => mv(1); ld(0);\n';
-        h += '<' + '/script>\n'; // Хитрость против обрыва скрипта
-        h += '</body></html>';
-        return h;
-    }
+function pre() {
+    const h = build();
+    const blob = new Blob([h], {type: 'text/html'});
+    const url = URL.createObjectURL(blob);
+    document.getElementById('m').innerHTML = `<iframe src="${url}" width="480" height="280" frameborder="0"></iframe>`;
+}
 
-    function update() {
-        const html = createPlayerHTML();
-        const blob = new Blob([html], {type: 'text/html'});
-        const url = URL.createObjectURL(blob);
-        document.getElementById('mount').innerHTML = '<iframe src="'+url+'" width="500" height="300" frameborder="0"></iframe>';
-    }
+function gen() {
+    const h = build();
+    const b64 = btoa(unescape(encodeURIComponent(h)));
+    document.getElementById('out').value = `<iframe width="500" height="320" src="data:text/html;base64,${b64}" frameborder="0" scrolling="no" style="background:transparent;"></iframe>`;
+    document.getElementById('modal').style.display = 'block';
+}
 
-    function getCode() {
-        const html = createPlayerHTML();
-        const b64 = btoa(unescape(encodeURIComponent(html)));
-        const code = '<iframe width="500" height="320" src="data:text/html;base64,'+b64+'" frameborder="0" scrolling="no" style="background:transparent;"></iframe>';
-        document.getElementById('codeOut').value = code;
-        document.getElementById('overlay').style.display = 'block';
-        document.getElementById('modal').style.display = 'block';
-    }
-
-    function closeM() {
-        document.getElementById('overlay').style.display = 'none';
-        document.getElementById('modal').style.display = 'none';
-    }
-
-    window.onload = update;
+window.onload = pre;
 </script>
 </body>
 </html>
