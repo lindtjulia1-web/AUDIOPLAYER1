@@ -2,29 +2,19 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Ultimate Player Configurator v3</title>
+    <title>Genially Iframe Generator</title>
     <style>
         :root { --accent: #ff0055; --bg: #0b0b0d; --panel: #16161a; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Sidebar Styles */
-        .sidebar { width: 400px; background: var(--panel); padding: 25px; border-right: 1px solid #2d2d33; overflow-y: auto; display: flex; flex-direction: column; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
-        h1 { font-size: 1.1rem; color: #00d4ff; text-transform: uppercase; letter-spacing: 2px; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 400px; background: var(--panel); padding: 25px; border-right: 1px solid #2d2d33; overflow-y: auto; display: flex; flex-direction: column; }
+        h1 { font-size: 1.1rem; color: #00d4ff; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 20px 0; }
         label { display: block; font-size: 0.7rem; color: #888; margin: 15px 0 5px; text-transform: uppercase; font-weight: bold; }
         input, select, textarea { width: 100%; background: #222; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-        input:focus, textarea:focus { border-color: var(--accent); outline: none; }
-        
-        .btn-gen { background: var(--accent); color: #fff; border: none; padding: 18px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; margin-top: 20px; font-size: 16px; text-transform: uppercase; }
+        .btn-gen { background: var(--accent); color: #fff; border: none; padding: 18px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; margin-top: 20px; font-size: 16px; }
         .btn-gen:hover { transform: translateY(-2px); box-shadow: 0 5px 20px var(--accent); }
-
-        /* Main Preview Area */
         .main { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #1a1a1a, #000); position: relative; }
-        .preview-label { position: absolute; top: 20px; color: #444; text-transform: uppercase; letter-spacing: 3px; }
-
-        /* Modal */
         #modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 700px; background: #111; padding: 30px; border-radius: 20px; border: 1px solid #333; display: none; z-index: 1000; box-shadow: 0 0 100px #000; }
-        #codeOut { width: 100%; height: 250px; background: #000; color: #0f9; font-family: 'Consolas', monospace; font-size: 12px; padding: 15px; border: 1px solid #222; margin-top: 15px; border-radius: 10px; }
+        #codeOut { width: 100%; height: 250px; background: #000; color: #0f9; font-family: monospace; font-size: 11px; padding: 15px; border: 1px solid #222; margin-top: 15px; border-radius: 10px; word-break: break-all; }
         .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); display:none; z-index: 999; }
     </style>
 </head>
@@ -32,172 +22,98 @@
 
 <div class="sidebar">
     <h1>Configurator</h1>
-    
-    <label>GitHub Root (lindtjulia1-web)</label>
+    <label>GitHub Root</label>
     <input type="text" id="ghPath" value="https://lindtjulia1-web.github.io/AUDIOPLAYER1/">
-    
     <div style="display:flex; gap:10px;">
         <div style="flex:1"><label>Accent 1</label><input type="color" id="clr1" value="#ff0055"></div>
         <div style="flex:1"><label>Accent 2</label><input type="color" id="clr2" value="#00d4ff"></div>
     </div>
-
-    <label>Sprache / Язык</label>
+    <label>Язык</label>
     <select id="lang">
         <option value="ru">Русский</option>
         <option value="de">Deutsch</option>
         <option value="en">English</option>
     </select>
-
-    <label>Playlist (Название | файл.mp3)</label>
-    <textarea id="tracks" rows="8" placeholder="Песня 1 | 1.mp3">Track 01 | 1.mp3
+    <label>Playlist (Название | файл)</label>
+    <textarea id="tracks" rows="8">Track 01 | 1.mp3
 Track 02 | 2.mp3
 Track 03 | 3.mp3
 Track 04 | 4.mp3</textarea>
-
-    <button class="btn-gen" onclick="generate()">Сгенерировать код</button>
+    <button class="btn-gen" onclick="generate()">СГЕНЕРИРОВАТЬ IFRAME</button>
 </div>
 
 <div class="main">
-    <div class="preview-label">Live Preview</div>
     <div id="preview"></div>
 </div>
 
 <div class="overlay" id="overlay" onclick="closeAll()"></div>
 <div id="modal">
-    <h3 style="margin:0; color:var(--accent)">Код для вставки в Genially:</h3>
-    <p style="color:#777; font-size: 12px;">Скопируйте всё (Ctrl+A, Ctrl+C) и вставьте в Genially через Insert -> Others</p>
+    <h3 style="margin:0; color:var(--accent)">Готовый код Iframe:</h3>
+    <p style="color:#777; font-size: 11px;">Скопируйте это полностью и вставьте в Genially (Insert -> Others)</p>
     <textarea id="codeOut" readonly></textarea>
-    <button class="btn-gen" style="margin-top:10px;" onclick="closeAll()">Закрыть</button>
+    <button class="btn-gen" style="margin-top:10px;" onclick="closeAll()">ГОТОВО</button>
 </div>
 
 <script>
     function generate() {
-        // 1. Формируем путь к RAW файлам GitHub
-        const userRepo = "lindtjulia1-web/AUDIOPLAYER1";
-        const ghRawBase = `https://raw.githubusercontent.com/${userRepo}/main/`;
-        
+        const ghRawBase = `https://raw.githubusercontent.com/lindtjulia1-web/AUDIOPLAYER1/main/`;
         const c1 = document.getElementById('clr1').value;
         const c2 = document.getElementById('clr2').value;
         const lang = document.getElementById('lang').value;
-        
-        // 2. Обработка списка треков
-        const tracksArr = document.getElementById('tracks').value.split('\n')
-            .filter(line => line.includes('|'))
-            .map(line => {
-                const parts = line.split('|');
-                return { n: parts[0].trim(), f: parts[1].trim() };
-            });
+        const tracksArr = document.getElementById('tracks').value.split('\n').filter(l => l.includes('|')).map(l => {
+            const p = l.split('|'); return { n: p[0].trim(), f: p[1].trim() };
+        });
 
         const i18n = {
-            ru: { l: "СПИСОК", r: "РАНДОМ", v: "ГРОМК.", n: "НЕТ ТРЕКА" },
-            de: { l: "LISTE", r: "ZUFALL", v: "LAUTS.", n: "KEIN TRACK" },
-            en: { l: "LIST", r: "SHUFFLE", v: "VOL.", n: "NO TRACK" }
+            ru: { l: "СПИСОК", r: "РАНДОМ", n: "НЕТ ТРЕКА" },
+            de: { l: "LISTE", r: "ZUFALL", n: "KEIN TRACK" },
+            en: { l: "LIST", r: "SHUFFLE", n: "NO TRACK" }
         }[lang];
 
-        // 3. Сборка кода плеера (Тот самый чистый HTML)
-        const playerHTML = `<!DOCTYPE html>
-<html lang="${lang}">
-<head>
-<meta charset="UTF-8">
-<style>
-    :root { --p: ${c1}; --s: ${c2}; }
-    body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; }
-    .pb { width: 480px; height: 270px; background: rgba(22, 20, 19, 0.98); border: 4px solid #2d2a28; border-radius: 24px; display: flex; padding: 15px; box-sizing: border-box; position: relative; color: white; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-    .lp { width: 160px; border-right: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .vi { width: 130px; height: 130px; border-radius: 50%; background: radial-gradient(circle, #333 5%, #111 20%, #000 100%); border: 5px solid #111; position: relative; animation: r 4s linear infinite; animation-play-state: paused; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
-    .vi::before { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:30px; height:30px; background:#1a1817; border-radius:50%; border:2px solid #333; z-index:2; }
-    .vi::after { content:''; position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; background: conic-gradient(transparent, var(--p), transparent, var(--s), transparent); opacity: 0.4; }
-    @keyframes r { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
-    .rp { flex: 1; padding-left: 20px; display: flex; flex-direction: column; justify-content: space-between; }
-    .sc { background: #080808; border: 2px solid #222; border-radius: 16px; padding: 15px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
-    .tt { color: var(--p); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; font-weight: bold; overflow: hidden; white-space: nowrap; }
-    .tm { color: var(--s); font-size: 28px; font-weight: bold; font-family: monospace; }
-    .vz { display: flex; align-items: flex-end; gap: 2px; height: 30px; margin: 8px 0; }
-    .br { flex: 1; background: var(--s); height: 2px; transition: 0.15s; border-radius: 1px; }
-    .controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
-    .btn { background: #252321; border: 1px solid #3d3b39; color: var(--s); padding: 10px 5px; cursor: pointer; border-radius: 8px; font-size: 10px; font-weight: bold; transition: 0.2s; }
-    .btn:hover { background: #333; border-color: var(--s); }
-    .btn.active { color: var(--p); border-color: var(--p); box-shadow: 0 0 10px var(--p); }
-    #plw { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,10,10,0.98); display: none; padding: 25px; box-sizing: border-box; z-index: 10; border-radius: 20px; }
-    .li { padding: 10px; border-bottom: 1px solid #222; cursor: pointer; font-size: 13px; transition: 0.2s; }
-    .li:hover { background: rgba(255,255,255,0.05); color: var(--p); }
-</style>
-</head>
-<body>
-    <div class="pb">
-        <div class="lp"><div class="vi" id="disk"></div></div>
-        <div class="rp">
-            <div class="sc">
-                <div class="tt" id="title">${i18n.n}</div>
-                <div class="tm" id="clock">00:00</div>
-                <div class="vz" id="viz"></div>
-            </div>
-            <div class="controls">
-                <button class="btn" onclick="move(-1)">⏮</button>
-                <button class="btn" id="playB" onclick="toggle()">▶</button>
-                <button class="btn" onclick="move(1)">⏭</button>
-                <button class="btn" onclick="showL()">${i18n.l}</button>
-                <button class="btn" id="shufB" onclick="shuf()" style="grid-column: span 2;">${i18n.r}</button>
-                <button class="btn" onclick="location.reload()" style="grid-column: span 2;">RESET</button>
-            </div>
-        </div>
-        <div id="plw">
-            <div style="display:flex; justify-content: space-between; color:var(--p); margin-bottom:15px;"><b>${i18n.l}</b><span onclick="showL()" style="cursor:pointer; font-size:20px;">×</span></div>
-            <div id="list" style="overflow-y:auto; height:170px;"></div>
-        </div>
-    </div>
+        // Тот самый <!DOCTYPE html> код внутри переменной
+        const innerHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+:root { --p: ${c1}; --s: ${c2}; }
+body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; }
+.pb { width: 480px; height: 270px; background: rgba(26,24,23,0.98); border: 4px solid #2d2a28; border-radius: 20px; display: flex; padding: 15px; box-sizing: border-box; position: relative; color: white; }
+.lp { width: 160px; border-right: 1px solid #333; display: flex; justify-content: center; align-items: center; }
+.vi { width: 125px; height: 125px; border-radius: 50%; background: radial-gradient(circle, #222, #000); border: 4px solid #111; animation: r 4s linear infinite; animation-play-state: paused; position: relative; }
+.vi::after { content:''; position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; background: conic-gradient(var(--p), var(--s), var(--p)); opacity: 0.3; }
+@keyframes r { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
+.rp { flex: 1; padding-left: 15px; display: flex; flex-direction: column; }
+.sc { background: #050505; border: 2px solid #222; border-radius: 12px; padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.tm { color: var(--s); font-size: 28px; font-weight: bold; font-family: monospace; }
+.vz { display: flex; align-items: flex-end; gap: 2px; height: 35px; margin: 8px 0; }
+.br { flex: 1; background: var(--s); height: 2px; transition: 0.1s; }
+.controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
+.btn { background: #252321; border: 1px solid #3d3b39; color: var(--s); padding: 8px; cursor: pointer; border-radius: 6px; font-size: 9px; font-weight: bold; }
+.btn.active { color: var(--p); border-color: var(--p); }
+#pl { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); display: none; padding: 20px; box-sizing: border-box; z-index: 10; border-radius: 20px; }
+</style></head><body>
+<div class="pb"><div class="lp"><div class="vi" id="disk"></div></div><div class="rp"><div class="sc"><div id="title" style="font-size:10px;color:var(--p);text-transform:uppercase">${i18n.n}</div><div class="tm" id="clock">00:00</div><div class="vz" id="viz"></div></div><div class="controls"><button class="btn" onclick="move(-1)">⏮</button><button class="btn" id="pBtn" onclick="toggle()">▶</button><button class="btn" onclick="move(1)">⏭</button><button class="btn" onclick="showL()">${i18n.l}</button><button class="btn" id="sBtn" onclick="shuf()" style="grid-column:span 2">${i18n.r}</button><button class="btn" onclick="location.reload()" style="grid-column:span 2">RESET</button></div></div><div id="pl"><div style="display:flex;justify-content:space-between;color:var(--p);font-size:12px;margin-bottom:10px"><b>${i18n.l}</b><span onclick="showL()" style="cursor:pointer">✕</span></div><div id="list" style="overflow-y:auto;height:180px"></div></div></div>
 <script>
-    const B = "${ghRawBase}", T = ${JSON.stringify(tracksArr)};
-    let ci = 0, iP = false, iS = false;
-    const audio = new Audio();
-    const disk = document.getElementById('disk'), pBtn = document.getElementById('playB'), viz = document.getElementById('viz');
-    for(let i=0; i<20; i++) { let b=document.createElement('div'); b.className='br'; viz.appendChild(b); }
-    function load(i) {
-        if(!T[i]) return;
-        ci = i; audio.src = T[ci].f.includes('://') ? T[ci].f : B + T[ci].f;
-        document.getElementById('title').innerText = T[ci].n;
-    }
-    function toggle() {
-        if(iP) { audio.pause(); pBtn.innerText="▶"; disk.style.animationPlayState="paused"; }
-        else { audio.play().then(()=>{ pBtn.innerText="⏸"; disk.style.animationPlayState="running"; }).catch(e=>alert("Ошибка загрузки файла! Проверьте GitHub.")); }
-        iP = !iP;
-    }
-    function move(s) {
-        if(iS) ci = Math.floor(Math.random()*T.length);
-        else ci = (ci + s + T.length) % T.length;
-        load(ci); if(iP) audio.play();
-    }
-    function shuf() { iS = !iS; document.getElementById('shufB').classList.toggle('active', iS); }
-    function showL() {
-        const w = document.getElementById('plw');
-        w.style.display = w.style.display === 'block' ? 'none' : 'block';
-        document.getElementById('list').innerHTML = T.map((t,i) => \`<div class="li" onclick="load(\${i});if(!iP)toggle();else audio.play();showL();" style="color:\${i===ci?'var(--p)':'white'}">\${t.n}</div>\`).join('');
-    }
-    audio.ontimeupdate = () => {
-        let m = Math.floor(audio.currentTime/60), s = Math.floor(audio.currentTime%60);
-        document.getElementById('clock').innerText = \`\${m}:\${s<10?'0':''}\${s}\`;
-        if(iP) document.querySelectorAll('.br').forEach(b => b.style.height = (Math.random()*25 + 2) + "px");
-    };
-    audio.onended = () => move(1);
-    load(0);
-<\/script>
-</body>
-</html>`;
+const B = "${ghRawBase}", T = ${JSON.stringify(tracksArr)};
+let ci=0, iP=false, iS=false; const audio = new Audio();
+const disk=document.getElementById('disk'), pBtn=document.getElementById('pBtn'), viz=document.getElementById('viz');
+for(let i=0;i<20;i++){ let b=document.createElement('div'); b.className='br'; viz.appendChild(b); }
+function load(i){ ci=i; audio.src=T[ci].f.includes('://')?T[ci].f:B+T[ci].f; document.getElementById('title').innerText=T[ci].n; }
+function toggle(){ if(iP){ audio.pause(); pBtn.innerText="▶"; disk.style.animationPlayState="paused"; } else { audio.play().then(()=>{ pBtn.innerText="⏸"; disk.style.animationPlayState="running"; }).catch(e=>alert("Ошибка файла!")); } iP=!iP; }
+function move(s){ if(iS)ci=Math.floor(Math.random()*T.length); else ci=(ci+s+T.length)%T.length; load(ci); if(iP)audio.play(); }
+function shuf(){ iS=!iS; document.getElementById('sBtn').classList.toggle('active', iS); }
+function showL(){ const w=document.getElementById('pl'); w.style.display=w.style.display==='block'?'none':'block'; document.getElementById('list').innerHTML=T.map((t,i)=>"<div onclick='load("+i+");toggle();showL()' style='padding:8px;border-bottom:1px solid #222;cursor:pointer;font-size:12px;color:"+(i===ci?"var(--p)":"white")+"'>"+t.n+"</div>").join(''); }
+audio.ontimeupdate=()=>{ let m=Math.floor(audio.currentTime/60), s=Math.floor(audio.currentTime%60); document.getElementById('clock').innerText=m+":"+(s<10?'0':'')+s; if(iP)document.querySelectorAll('.br').forEach(b=>b.style.height=(Math.random()*25+2)+"px"); };
+audio.onended=()=>move(1); load(0);
+<\/script></body></html>`;
 
-        // 4. Вывод кода и Предпросмотр (через безопасный Base64)
-        document.getElementById('codeOut').value = playerHTML;
-        
-        const base64 = btoa(unescape(encodeURIComponent(playerHTML)));
-        document.getElementById('preview').innerHTML = `<iframe style="width:500px; height:300px; border:none;" src="data:text/html;base64,${base64}"></iframe>`;
-        
+        // Упаковываем всё это в ОДНУ строку iframe
+        const base64 = btoa(unescape(encodeURIComponent(innerHTML)));
+        const finalIframe = `<iframe width="500" height="300" src="data:text/html;base64,${base64}" frameborder="0" scrolling="no" style="background:transparent;"></iframe>`;
+
+        document.getElementById('codeOut').value = finalIframe;
+        document.getElementById('preview').innerHTML = finalIframe;
         document.getElementById('modal').style.display = 'block';
         document.getElementById('overlay').style.display = 'block';
     }
-
-    function closeAll() {
-        document.getElementById('modal').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
-    }
+    function closeAll() { document.getElementById('modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
 </script>
 </body>
 </html>
