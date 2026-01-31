@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Audioplayer Genially - Professional Edition</title>
+    <style>
+        :root { --accent: #ff0055; --cyan: #00d4ff; }
+        body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+        
+        .player-body {
+            width: 490px; height: 280px;
+            background: #1a1817; border: 4px solid #2d2a28; border-radius: 20px;
+            display: flex; padding: 15px; box-sizing: border-box; position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+        }
+
+        /* Диск */
+        .left-part { width: 170px; border-right: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .vinyl {
+            width: 130px; height: 130px; border-radius: 50%;
+            background: radial-gradient(circle, #222 10%, #111 15%, #000 70%);
+            border: 5px solid #000; position: relative;
+            animation: rotate 4s linear infinite; animation-play-state: paused;
+        }
+        .vinyl::after {
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 125px; height: 125px; border-radius: 50%;
+            background: conic-gradient(var(--accent), var(--cyan), var(--accent)); opacity: 0.3;
+        }
+        @keyframes rotate { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
+
+        /* Экран и управление */
+        .right-part { flex: 1; padding-left: 15px; display: flex; flex-direction: column; }
+        .screen {
+            background: #050505; border: 2px solid #222; border-radius: 10px;
+            padding: 10px; flex-grow: 1; display: flex; flex-direction: column;
+        }
+        .track-title { font-family: monospace; color: var(--accent); font-size: 11px; margin-bottom: 5px; height: 15px; overflow: hidden; }
+        .time { color: var(--cyan); font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+        
+        /* Визуализатор */
+        .viz { display: flex; align-items: flex-end; gap: 2px; height: 30px; margin-bottom: 10px; }
+        .bar { flex: 1; background: var(--cyan); height: 2px; transition: 0.1s; box-shadow: 0 0 5px var(--cyan); }
+
+        /* Регулятор громкости */
+        .volume-box { display: flex; align-items: center; gap: 10px; margin: 5px 0; color: #777; font-size: 12px; }
+        input[type=range] { flex-grow: 1; accent-color: var(--accent); cursor: pointer; height: 4px; }
+
+        .controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
+        .btn {
+            background: #2a2826; border: 1px solid #444; color: var(--cyan); 
+            padding: 8px; cursor: pointer; border-radius: 5px; font-size: 12px;
+        }
+        .btn:hover { border-color: var(--accent); }
+        .btn.active { color: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+        #playlist {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); display: none; padding: 20px; box-sizing: border-box; z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+<div class="player-body">
+    <div class="left-part">
+        <div class="vinyl" id="disk"></div>
+        <div style="font-size: 9px; color: #555; margin-top: 10px;">DEUTSCH V.2.0</div>
+    </div>
+
+    <div class="right-part">
+        <div class="screen">
+            <div class="track-title" id="title">KEIN TRACK</div>
+            <div class="time" id="clock">00:00</div>
+            <div class="viz" id="viz"></div>
+            
+            <div class="volume-box">
+                <span>Lauts.</span>
+                <input type="range" id="vol" min="0" max="1" step="0.01" value="0.7" oninput="setVol()">
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="change(-1)">⏮</button>
+            <button class="btn" id="playBtn" onclick="toggle()">▶</button>
+            <button class="btn" onclick="change(1)">⏭</button>
+            <button class="btn" onclick="toggleList()">LISTE</button>
+            <button class="btn" id="shufBtn" onclick="toggleShuf()" style="grid-column: span 2;">ZUFALL</button>
+            <button class="btn" onclick="location.reload()" style="grid-column: span 2;">RESET</button>
+        </div>
+    </div>
+
+    <div id="playlist">
+        <div style="display:flex; justify-content: space-between; color:var(--accent); font-weight:bold;">
+            <span>PLAYLIST</span><span onclick="toggleList()" style="cursor:pointer; color:#fff">✕</span>
+        </div>
+        <div id="list-items" style="margin-top:15px; overflow-y:auto; height:170px; color:var(--cyan); font-size:13px;"></div>
+    </div>
+</div>
+
+<script>
+    // --- Прямые ссылки на ваши файлы ---
+    const BASE_URL = "https://raw.githubusercontent.com/lindtjulia1-web/AUDIOPLAYER/main/";
+    const tracks = [
+        { name: "Track 01", file: "1.mp3" }, 
+        { name: "Track 02", file: "2.mp3" }, 
+        { name: "Track 03", file: "3.mp3" }, 
+        { name: "Track 04", file: "4.mp3" }
+    ];
+
+    let current = 0, isPlaying = false, isShuf = false;
+    const audio = new Audio();
+    const disk = document.getElementById('disk');
+    const playBtn = document.getElementById('playBtn');
+    
+    // Создание баров визуализатора
+    const viz = document.getElementById('viz');
+    for(let i=0; i<25; i++) {
+        let b = document.createElement('div'); b.className = 'bar'; viz.appendChild(b);
+    }
+
+    function load(idx) {
+        current = idx;
+        audio.src = BASE_URL + tracks[current].file;
+        document.getElementById('title').innerText = tracks[current].name;
+    }
+
+    function toggle() {
+        if(isPlaying) {
+            audio.pause(); playBtn.innerText = "▶"; disk.style.animationPlayState = "paused";
+        } else {
+            audio.play().then(() => {
+                playBtn.innerText = "⏸"; disk.style.animationPlayState = "running";
+            }).catch(() => alert("Fehler beim Laden!"));
+        }
+        isPlaying = !isPlaying;
+    }
+
+    function setVol() {
+        audio.volume = document.getElementById('vol').value;
+    }
+
+    function change(s) {
+        current = isShuf ? Math.floor(Math.random()*tracks.length) : (current + s + tracks.length) % tracks.length;
+        load(current); if(isPlaying) audio.play();
+    }
+
+    function toggleShuf() {
+        isShuf = !isShuf; document.getElementById('shufBtn').classList.toggle('active', isShuf);
+    }
+
+    function toggleList() {
+        const p = document.getElementById('playlist');
+        p.style.display = p.style.display === 'block' ? 'none' : 'block';
+        document.getElementById('list-items').innerHTML = tracks.map((t, i) => `
+            <div onclick="load(${i}); toggle(); toggleList();" 
+                 style="padding:8px; border-bottom:1px solid #222; cursor:pointer; color:${i===current?'#ff0055':'#00d4ff'}">
+                ${t.name}
+            </div>`).join('');
+    }
+
+    audio.ontimeupdate = () => {
+        let m = Math.floor(audio.currentTime / 60), s = Math.floor(audio.currentTime % 60);
+        document.getElementById('clock').innerText = `${m}:${s<10?'0':''}${s}`;
+        if(isPlaying) {
+            document.querySelectorAll('.bar').forEach(b => b.style.height = (Math.random()*28+2)+"px");
+        }
+    };
+
+    audio.onended = () => change(1);
+    setVol(); // Установка начальной громкости
+    load(0);
+</script>
+</body>
+</html>
