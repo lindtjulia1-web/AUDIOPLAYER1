@@ -2,88 +2,78 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Pro-Audioplayer Generator (with Covers)</title>
+    <title>Genially Iframe Generator</title>
     <style>
-        :root { --p-accent: #ff0055; --s-accent: #00d4ff; }
-        body { font-family: 'Segoe UI', sans-serif; background: #0a0a0b; color: #e0e0e0; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        :root { --accent: #ff0055; --bg: #0f0f11; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; display: flex; height: 100vh; }
         
-        .sidebar { width: 420px; background: #141417; padding: 25px; border-right: 1px solid #2d2d33; overflow-y: auto; display: flex; flex-direction: column; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
-        .sidebar h1 { font-size: 1.2rem; color: var(--s-accent); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 20px; border-bottom: 2px solid #2d2d33; padding-bottom: 10px; }
+        .sidebar { width: 400px; background: #18181b; padding: 25px; border-right: 1px solid #2d2d33; overflow-y: auto; }
+        .main { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(#222, #000); }
         
-        .section { margin-bottom: 15px; }
-        label { display: block; font-size: 0.7rem; color: #777; margin-bottom: 6px; text-transform: uppercase; font-weight: 800; }
-        input, select, textarea { width: 100%; background: #1c1c21; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; box-sizing: border-box; font-size: 0.85rem; transition: 0.2s; }
-        input:focus { border-color: var(--s-accent); outline: none; background: #222229; }
+        h1 { font-size: 1.2rem; color: #00d4ff; text-transform: uppercase; letter-spacing: 2px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.7rem; color: #777; margin-bottom: 5px; text-transform: uppercase; }
+        input, select, textarea { width: 100%; background: #252529; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; box-sizing: border-box; }
         
-        .color-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        
-        .preview-area { flex-grow: 1; background: radial-gradient(circle at center, #1e1e24, #050505); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .preview-area::before { content: "LIVE EDITOR"; position: absolute; top: 40px; letter-spacing: 8px; color: rgba(255,255,255,0.03); font-weight: 900; font-size: 5rem; pointer-events: none; }
+        .btn-generate { background: var(--accent); color: #fff; border: none; padding: 15px; width: 100%; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.3s; }
+        .btn-generate:hover { transform: scale(1.02); box-shadow: 0 0 20px var(--accent); }
 
-        .get-code-btn { background: linear-gradient(45deg, var(--p-accent), #ff4d88); color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-top: 20px; transition: 0.3s; text-transform: uppercase; }
-        .get-code-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px var(--p-accent); filter: brightness(1.1); }
-        
-        #outputWrapper { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 700px; background: #111; border: 1px solid #333; padding: 30px; border-radius: 20px; display: none; z-index: 1000; box-shadow: 0 0 100px #000; }
-        #codeArea { width: 100%; height: 300px; background: #050505; color: #00ff95; font-family: 'Consolas', monospace; font-size: 11px; margin-top: 15px; border: 1px solid #222; padding: 15px; border-radius: 10px; resize: none; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 999; backdrop-filter: blur(5px); }
+        /* Модальное окно */
+        #modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 800px; background: #111; padding: 30px; border-radius: 20px; border: 1px solid #333; display: none; z-index: 1000; }
+        #codeOut { width: 100%; height: 300px; background: #000; color: #00ff95; font-family: monospace; font-size: 12px; padding: 15px; border-radius: 10px; border: 1px solid #222; margin-top: 15px; resize: none; }
+        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display:none; z-index: 999; }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
     <h1>Widget Editor</h1>
-    
-    <div class="section">
+    <div class="input-group">
         <label>GitHub Base URL</label>
         <input type="text" id="ghPath" value="https://lindtjulia1-web.github.io/AUDIOPLAYER/">
     </div>
-
-    <div class="section color-group">
-        <div>
-            <label>Farbe 1</label>
+    <div style="display: flex; gap: 10px;" class="input-group">
+        <div style="flex:1">
+            <label>Color 1</label>
             <input type="color" id="clr1" value="#ff0055">
         </div>
-        <div>
-            <label>Farbe 2</label>
+        <div style="flex:1">
+            <label>Color 2</label>
             <input type="color" id="clr2" value="#00d4ff">
         </div>
     </div>
-
-    <div class="section">
-        <label>Interface Sprache</label>
+    <div class="input-group">
+        <label>Sprache</label>
         <select id="lang">
             <option value="de">Deutsch</option>
             <option value="ru">Русский</option>
             <option value="en">English</option>
         </select>
     </div>
-
-    <div class="section">
-        <label>Playlist (Titel | MP3 | Cover-URL)</label>
-        <p style="font-size: 9px; color: #555; margin-bottom: 5px;">Format: Название | файл.mp3 | ссылка_на_картинку.jpg</p>
-        <textarea id="tracks" rows="8">Song 1 | track1.mp3 | https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=300&h=300&fit=crop
-Song 2 | track2.mp3 | https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=300&h=300&fit=crop</textarea>
+    <div class="input-group">
+        <label>Playlist (Name | File | Cover)</label>
+        <textarea id="tracks" rows="8">Track 01 | track1.mp3 | https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300
+Track 02 | track2.mp3 | https://images.unsplash.com/photo-1493225255756-d9584f8606e9?w=300</textarea>
     </div>
-
-    <button class="get-code-btn" onclick="showCode()">Code generieren</button>
+    <button class="btn-generate" onclick="generateIframe()">IFRAME-CODE GENERIEREN</button>
 </div>
 
-<div class="preview-area">
-    <div id="preview-frame" style="transform: scale(0.9); transition: 0.5s;"></div>
+<div class="main">
+    <div id="preview"></div>
 </div>
 
-<div class="overlay" id="overlay" onclick="closeModal()"></div>
-<div id="outputWrapper">
-    <div style="display:flex; justify-content: space-between; align-items: center;">
-        <span style="font-weight:bold; color: var(--s-accent); letter-spacing: 1px;">HTML-WIDGET CODE:</span>
-        <button onclick="closeModal()" style="background:none; border:none; color:#555; cursor:pointer; font-size:24px;">&times;</button>
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+<div id="modal">
+    <div style="display:flex; justify-content:space-between; align-items:center">
+        <h3 style="margin:0; color:#00d4ff">Genially Iframe Code:</h3>
+        <button onclick="closeAll()" style="background:none; border:none; color:#555; cursor:pointer; font-size:30px">&times;</button>
     </div>
-    <textarea id="codeArea" readonly></textarea>
-    <p style="font-size: 11px; color: #444; margin-top: 15px; text-align: center;">Kopieren Sie diesen Code und fügen Sie ihn in Genially ein (Insert -> Others).</p>
+    <textarea id="codeOut" readonly></textarea>
+    <p style="font-size:12px; color:#555; text-align:center">Скопируйте этот код целиком и вставьте в Genially (Insert -> Others)</p>
 </div>
 
 <script>
-    function buildWidgetCode() {
+    function generateIframe() {
         const ghRaw = document.getElementById('ghPath').value.replace('github.io/', 'raw.githubusercontent.com/').replace('/AUDIOPLAYER/', '/AUDIOPLAYER/main/');
         const c1 = document.getElementById('clr1').value;
         const c2 = document.getElementById('clr2').value;
@@ -92,11 +82,7 @@ Song 2 | track2.mp3 | https://images.unsplash.com/photo-1493225255756-d9584f8606
         
         const trackList = rawTracks.map(t => {
             const p = t.split('|');
-            return { 
-                name: p[0] ? p[0].trim() : "Unknown", 
-                file: p[1] ? p[1].trim() : "",
-                img: p[2] ? p[2].trim() : ""
-            };
+            return { name: p[0].trim(), file: p[1].trim(), img: p[2] ? p[2].trim() : "" };
         });
 
         const i18n = {
@@ -105,55 +91,55 @@ Song 2 | track2.mp3 | https://images.unsplash.com/photo-1493225255756-d9584f8606
             en: { list: "LIST", rnd: "SHUFFLE", vol: "VOL.", none: "NO TRACK" }
         }[lang];
 
-        return `<!DOCTYPE html>
-<html lang="${lang}">
+        // Внутренний HTML плеера
+        const innerHTML = `<!DOCTYPE html>
+<html lang='${lang}'>
 <head>
-<meta charset="UTF-8">
+<meta charset='UTF-8'>
 <style>
 :root { --p: ${c1}; --s: ${c2}; }
-body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
-.pb { width: 490px; height: 280px; background: #1a1817; border: 4px solid #2d2a28; border-radius: 20px; display: flex; padding: 15px; box-sizing: border-box; position: relative; color: white; box-shadow: 0 15px 50px rgba(0,0,0,0.8); }
-.lp { width: 170px; border-right: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.vi { width: 135px; height: 135px; border-radius: 50%; background: #000; border: 5px solid #111; position: relative; animation: r 6s linear infinite; animation-play-state: paused; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-.vi img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
-.vi::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: conic-gradient(from 0deg, var(--p), var(--s), var(--p)); mix-blend-mode: overlay; opacity: 0.4; }
+body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; }
+.pb { width: 480px; height: 270px; background: #1a1817; border: 4px solid #2d2a28; border-radius: 20px; display: flex; padding: 15px; box-sizing: border-box; position: relative; color: white; }
+.lp { width: 160px; border-right: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.vi { width: 125px; height: 125px; border-radius: 50%; background: #000; border: 4px solid #111; position: relative; animation: r 6s linear infinite; animation-play-state: paused; overflow: hidden; }
+.vi img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; }
+.vi::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: conic-gradient(var(--p), var(--s), var(--p)); mix-blend-mode: overlay; opacity: 0.4; }
 @keyframes r { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
 .rp { flex: 1; padding-left: 15px; display: flex; flex-direction: column; }
-.sc { background: #050505; border: 2px solid #222; border-radius: 12px; padding: 12px; flex-grow: 1; display: flex; flex-direction: column; position: relative; }
-.tt { font-family: monospace; color: var(--p); font-size: 11px; height: 15px; overflow: hidden; text-transform: uppercase; letter-spacing: 1px; }
-.tm { color: var(--s); font-size: 22px; font-weight: bold; font-family: monospace; margin: 5px 0; }
-.vz { display: flex; align-items: flex-end; gap: 2px; height: 35px; margin: 8px 0; }
+.sc { background: #050505; border: 2px solid #222; border-radius: 12px; padding: 12px; flex: 1; display: flex; flex-direction: column; }
+.tt { color: var(--p); font-size: 10px; text-transform: uppercase; height: 14px; overflow: hidden; }
+.tm { color: var(--s); font-size: 22px; font-weight: bold; margin: 5px 0; }
+.vz { display: flex; align-items: flex-end; gap: 2px; height: 35px; margin: 5px 0; }
 .br { flex: 1; background: var(--s); height: 2px; transition: 0.1s; box-shadow: 0 0 5px var(--s); }
-.vb { display: flex; align-items: center; gap: 10px; font-size: 10px; color: #555; font-weight: bold; }
-.controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 12px; }
-.btn { background: #252321; border: 1px solid #3d3b39; color: var(--s); padding: 9px; cursor: pointer; border-radius: 6px; font-size: 10px; font-weight: 900; transition: 0.2s; }
-.btn:hover { border-color: var(--s); }
-.btn.active { color: var(--p); border-color: var(--p); box-shadow: 0 0 10px var(--p); }
-#pl { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,10,10,0.98); display: none; padding: 20px; box-sizing: border-box; z-index: 10; border-radius: 16px; }
+.vb { display: flex; align-items: center; gap: 8px; font-size: 10px; color: #555; }
+.controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
+.btn { background: #252321; border: 1px solid #3d3b39; color: var(--s); padding: 8px; cursor: pointer; border-radius: 6px; font-size: 9px; font-weight: bold; }
+.btn.active { color: var(--p); border-color: var(--p); }
+#pl { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; padding: 20px; box-sizing: border-box; z-index: 10; border-radius: 20px; }
 </style>
 </head>
 <body>
-<div class="pb">
-    <div class="lp"><div class="vi" id="d"><img id="cv" src=""></div></div>
-    <div class="rp">
-        <div class="sc">
-            <div class="tt" id="t">${i18n.none}</div>
-            <div class="tm" id="c">00:00</div>
-            <div class="vz" id="v"></div>
-            <div class="vb"><span>${i18n.vol}</span><input type="range" id="vl" min="0" max="1" step="0.01" value="0.7" oninput="a.volume=this.value" style="flex:1; accent-color:var(--p);"></div>
+<div class='pb'>
+    <div class='lp'><div class='vi' id='d'><img id='cv' src=''></div></div>
+    <div class='rp'>
+        <div class='sc'>
+            <div class='tt' id='t'>${i18n.none}</div>
+            <div class='tm' id='c'>00:00</div>
+            <div class='vz' id='v'></div>
+            <div class='vb'><span>${i18n.vol}</span><input type='range' id='vl' min='0' max='1' step='0.01' value='0.7' oninput='a.volume=this.value' style='flex:1; accent-color:var(--p);'></div>
         </div>
-        <div class="controls">
-            <button class="btn" onclick="m(-1)">⏮</button>
-            <button class="btn" id="p" onclick="o()">▶</button>
-            <button class="btn" onclick="m(1)">⏭</button>
-            <button class="btn" onclick="l()">${i18n.list}</button>
-            <button class="btn" id="s" onclick="f()" style="grid-column: span 2;">${i18n.rnd}</button>
-            <button class="btn" onclick="location.reload()" style="grid-column: span 2;">RESET</button>
+        <div class='controls'>
+            <button class='btn' onclick='m(-1)'>⏮</button>
+            <button class='btn' id='p' onclick='o()'>▶</button>
+            <button class='btn' onclick='m(1)'>⏭</button>
+            <button class='btn' onclick='l()'>${i18n.list}</button>
+            <button class='btn' id='s' onclick='f()' style='grid-column: span 2;'>${i18n.rnd}</button>
+            <button class='btn' onclick='location.reload()' style='grid-column: span 2;'>RESET</button>
         </div>
     </div>
-    <div id="pl">
-        <div style="display:flex; justify-content: space-between; color:var(--p); font-size: 12px; font-weight:bold; letter-spacing: 2px;"><span>PLAYLIST</span><span onclick="l()" style="cursor:pointer; color:#fff">✕</span></div>
-        <div id="li" style="margin-top:15px; overflow-y:auto; height:180px; color:var(--s); font-size:12px;"></div>
+    <div id='pl'>
+        <div style='display:flex; justify-content: space-between; color:var(--p); font-size: 12px;'><b>PLAYLIST</b><span onclick='l()' style='cursor:pointer;'>✕</span></div>
+        <div id='li' style='margin-top:10px; overflow-y:auto; height:180px; font-size:12px;'></div>
     </div>
 </div>
 <script>
@@ -166,18 +152,18 @@ body { background: transparent; margin: 0; display: flex; justify-content: cente
     function ld(i) { 
         ci=i; a.src=T[ci].file.startsWith('http') ? T[ci].file : B+T[ci].file; 
         document.getElementById('t').innerText=T[ci].name;
-        cv.src = T[ci].img || 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=300';
+        cv.src = T[ci].img || 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300';
     }
     function o() { 
         if(iP) { a.pause(); p.innerText="▶"; d.style.animationPlayState="paused"; } 
-        else { a.play().then(()=>{ p.innerText="⏸"; d.style.animationPlayState="running"; }).catch(()=>alert("Error loading audio!")); }
+        else { a.play().then(()=>{ p.innerText="⏸"; d.style.animationPlayState="running"; }).catch(()=>alert("Error!")); }
         iP=!iP;
     }
     function m(s) { ci=iS?Math.floor(Math.random()*T.length):(ci+s+T.length)%T.length; ld(ci); if(iP) a.play(); }
     function f() { iS=!iS; document.getElementById('s').classList.toggle('active', iS); }
     function l() {
         const x=document.getElementById('pl'); x.style.display=x.style.display==='block'?'none':'block';
-        document.getElementById('li').innerHTML=T.map((t,i)=>\`<div onclick="ld(\${i});o();l();" style="padding:10px; border-bottom:1px solid #222; cursor:pointer; color:\${i===ci?'var(--p)':'var(--s)'}">\${t.name}</div>\`).join('');
+        document.getElementById('li').innerHTML=T.map((t,i)=>\`<div onclick="ld(\${i});o();l();" style="padding:8px; border-bottom:1px solid #222; cursor:pointer; color:\${i===ci?'var(--p)':'var(--s)'}">\${t.name}</div>\`).join('');
     }
     a.ontimeupdate=()=>{
         let mi=Math.floor(a.currentTime/60), se=Math.floor(a.currentTime%60);
@@ -189,31 +175,23 @@ body { background: transparent; margin: 0; display: flex; justify-content: cente
 <\/script>
 </body>
 </html>`;
-    }
 
-    function showCode() {
-        document.getElementById('codeArea').value = buildWidgetCode();
+        // Формируем финальный Iframe
+        const escapedHTML = innerHTML.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+        const finalIframe = `<iframe width="500" height="300" srcdoc="${escapedHTML}" frameborder="0" scrolling="no" style="background: transparent;"></iframe>`;
+
+        document.getElementById('codeOut').value = finalIframe;
+        document.getElementById('modal').style.display = 'block';
         document.getElementById('overlay').style.display = 'block';
-        document.getElementById('outputWrapper').style.display = 'block';
+
+        // Превью
+        document.getElementById('preview').innerHTML = finalIframe;
     }
 
-    function closeModal() {
+    function closeAll() {
+        document.getElementById('modal').style.display = 'none';
         document.getElementById('overlay').style.display = 'none';
-        document.getElementById('outputWrapper').style.display = 'none';
     }
-
-    function updatePreview() {
-        const widgetCode = buildWidgetCode();
-        const blob = new Blob([widgetCode], {type: 'text/html'});
-        const url = URL.createObjectURL(blob);
-        document.getElementById('preview-frame').innerHTML = `<iframe src="${url}" width="500" height="300" style="border:none; background: transparent;"></iframe>`;
-    }
-
-    document.querySelectorAll('input, select, textarea').forEach(el => {
-        el.addEventListener('input', updatePreview);
-    });
-
-    window.onload = updatePreview;
 </script>
 </body>
 </html>
