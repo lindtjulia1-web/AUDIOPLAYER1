@@ -2,58 +2,55 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Audioplayer-Generator für Genially</title>
+    <title>Pro-Audioplayer Generator (with Covers)</title>
     <style>
         :root { --p-accent: #ff0055; --s-accent: #00d4ff; }
-        body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: #e0e0e0; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0a0b; color: #e0e0e0; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Левая панель управления */
-        .sidebar { width: 380px; background: #181818; padding: 25px; border-right: 1px solid #333; overflow-y: auto; display: flex; flex-direction: column; }
-        .sidebar h1 { font-size: 1.1rem; color: var(--s-accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .sidebar { width: 420px; background: #141417; padding: 25px; border-right: 1px solid #2d2d33; overflow-y: auto; display: flex; flex-direction: column; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+        .sidebar h1 { font-size: 1.2rem; color: var(--s-accent); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 20px; border-bottom: 2px solid #2d2d33; padding-bottom: 10px; }
         
-        .section { margin-bottom: 20px; }
-        label { display: block; font-size: 0.75rem; color: #888; margin-bottom: 8px; text-transform: uppercase; font-weight: bold; }
-        input, select, textarea { width: 100%; background: #252525; border: 1px solid #3d3d3d; color: #fff; padding: 12px; border-radius: 8px; box-sizing: border-box; font-size: 0.9rem; }
-        input[type="color"] { height: 45px; padding: 2px; cursor: pointer; border: none; }
+        .section { margin-bottom: 15px; }
+        label { display: block; font-size: 0.7rem; color: #777; margin-bottom: 6px; text-transform: uppercase; font-weight: 800; }
+        input, select, textarea { width: 100%; background: #1c1c21; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; box-sizing: border-box; font-size: 0.85rem; transition: 0.2s; }
+        input:focus { border-color: var(--s-accent); outline: none; background: #222229; }
         
         .color-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         
-        /* Правая зона предпросмотра */
-        .preview-area { flex-grow: 1; background: radial-gradient(circle at center, #222, #050505); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .preview-area::before { content: "LIVE VORSCHAU"; position: absolute; top: 30px; letter-spacing: 10px; color: #333; font-weight: bold; font-size: 2rem; }
+        .preview-area { flex-grow: 1; background: radial-gradient(circle at center, #1e1e24, #050505); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .preview-area::before { content: "LIVE EDITOR"; position: absolute; top: 40px; letter-spacing: 8px; color: rgba(255,255,255,0.03); font-weight: 900; font-size: 5rem; pointer-events: none; }
 
-        /* Кнопки и результат */
-        .get-code-btn { background: var(--p-accent); color: white; border: none; padding: 18px; width: 100%; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-top: auto; transition: 0.3s; }
-        .get-code-btn:hover { filter: brightness(1.2); transform: translateY(-2px); box-shadow: 0 5px 15px var(--p-accent); }
+        .get-code-btn { background: linear-gradient(45deg, var(--p-accent), #ff4d88); color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-top: 20px; transition: 0.3s; text-transform: uppercase; }
+        .get-code-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px var(--p-accent); filter: brightness(1.1); }
         
-        #outputWrapper { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; background: #111; border: 2px solid var(--s-accent); padding: 20px; border-radius: 15px; display: none; z-index: 1000; box-shadow: 0 0 50px #000; }
-        #codeArea { width: 100%; height: 250px; background: #000; color: #0f0; font-family: 'Courier New', monospace; font-size: 11px; margin-top: 10px; border: 1px solid #333; padding: 10px; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 999; }
+        #outputWrapper { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 700px; background: #111; border: 1px solid #333; padding: 30px; border-radius: 20px; display: none; z-index: 1000; box-shadow: 0 0 100px #000; }
+        #codeArea { width: 100%; height: 300px; background: #050505; color: #00ff95; font-family: 'Consolas', monospace; font-size: 11px; margin-top: 15px; border: 1px solid #222; padding: 15px; border-radius: 10px; resize: none; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 999; backdrop-filter: blur(5px); }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <h1>Player Editor</h1>
+    <h1>Widget Editor</h1>
     
     <div class="section">
-        <label>GitHub Repository URL</label>
+        <label>GitHub Base URL</label>
         <input type="text" id="ghPath" value="https://lindtjulia1-web.github.io/AUDIOPLAYER/">
     </div>
 
     <div class="section color-group">
         <div>
-            <label>Akzentfarbe 1</label>
+            <label>Farbe 1</label>
             <input type="color" id="clr1" value="#ff0055">
         </div>
         <div>
-            <label>Akzentfarbe 2</label>
+            <label>Farbe 2</label>
             <input type="color" id="clr2" value="#00d4ff">
         </div>
     </div>
 
     <div class="section">
-        <label>Sprache (Interface)</label>
+        <label>Interface Sprache</label>
         <select id="lang">
             <option value="de">Deutsch</option>
             <option value="ru">Русский</option>
@@ -62,45 +59,50 @@
     </div>
 
     <div class="section">
-        <label>Trackliste (Titel|Dateiname.mp3)</label>
-        <textarea id="tracks" rows="5">Track 01|track1.mp3&#10;Track 02|track2.mp3</textarea>
+        <label>Playlist (Titel | MP3 | Cover-URL)</label>
+        <p style="font-size: 9px; color: #555; margin-bottom: 5px;">Format: Название | файл.mp3 | ссылка_на_картинку.jpg</p>
+        <textarea id="tracks" rows="8">Song 1 | track1.mp3 | https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=300&h=300&fit=crop
+Song 2 | track2.mp3 | https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=300&h=300&fit=crop</textarea>
     </div>
 
-    <button class="get-code-btn" onclick="showCode()">CODE ERHALTEN</button>
+    <button class="get-code-btn" onclick="showCode()">Code generieren</button>
 </div>
 
 <div class="preview-area">
-    <div id="preview-frame" style="transform: scale(0.85); box-shadow: 0 30px 60px rgba(0,0,0,0.5);">
-        </div>
+    <div id="preview-frame" style="transform: scale(0.9); transition: 0.5s;"></div>
 </div>
 
 <div class="overlay" id="overlay" onclick="closeModal()"></div>
 <div id="outputWrapper">
-    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <span style="font-weight:bold; color: var(--s-accent);">Kopieren Sie diesen HTML-Code:</span>
-        <button onclick="closeModal()" style="background:none; border:none; color:#fff; cursor:pointer; font-size:20px;">✕</button>
+    <div style="display:flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight:bold; color: var(--s-accent); letter-spacing: 1px;">HTML-WIDGET CODE:</span>
+        <button onclick="closeModal()" style="background:none; border:none; color:#555; cursor:pointer; font-size:24px;">&times;</button>
     </div>
     <textarea id="codeArea" readonly></textarea>
-    <p style="font-size: 11px; color: #666; margin-top: 10px;">* Вставьте этот код в Genially через Insert -> Others</p>
+    <p style="font-size: 11px; color: #444; margin-top: 15px; text-align: center;">Kopieren Sie diesen Code und fügen Sie ihn in Genially ein (Insert -> Others).</p>
 </div>
 
 <script>
-    // Функция создания самого плеера (тот самый код, который мы отладили)
     function buildWidgetCode() {
-        const gh = document.getElementById('ghPath').value.replace('github.io/', 'raw.githubusercontent.com/').replace('/AUDIOPLAYER/', '/AUDIOPLAYER/main/');
+        const ghRaw = document.getElementById('ghPath').value.replace('github.io/', 'raw.githubusercontent.com/').replace('/AUDIOPLAYER/', '/AUDIOPLAYER/main/');
         const c1 = document.getElementById('clr1').value;
         const c2 = document.getElementById('clr2').value;
         const lang = document.getElementById('lang').value;
         const rawTracks = document.getElementById('tracks').value.split('\n').filter(t => t.includes('|'));
+        
         const trackList = rawTracks.map(t => {
             const p = t.split('|');
-            return { name: p[0].trim(), file: p[1].trim() };
+            return { 
+                name: p[0] ? p[0].trim() : "Unknown", 
+                file: p[1] ? p[1].trim() : "",
+                img: p[2] ? p[2].trim() : ""
+            };
         });
 
         const i18n = {
             de: { list: "LISTE", rnd: "ZUFALL", vol: "Lauts.", none: "KEIN TRACK" },
-            ru: { list: "СПИСОК", rnd: "РАНДОМ", vol: "Громк.", none: "НЕТ ТРЕКА" },
-            en: { list: "LIST", rnd: "SHUFFLE", vol: "Vol.", none: "NO TRACK" }
+            ru: { list: "СПИСОК", rnd: "РАНДОМ", vol: "ГРОМК.", none: "НЕТ ТРЕКА" },
+            en: { list: "LIST", rnd: "SHUFFLE", vol: "VOL.", none: "NO TRACK" }
         }[lang];
 
         return `<!DOCTYPE html>
@@ -109,28 +111,30 @@
 <meta charset="UTF-8">
 <style>
 :root { --p: ${c1}; --s: ${c2}; }
-body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; }
-.pb { width: 490px; height: 280px; background: #1a1817; border: 4px solid #2d2a28; border-radius: 20px; display: flex; padding: 15px; box-sizing: border-box; position: relative; color: white; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+.pb { width: 490px; height: 280px; background: #1a1817; border: 4px solid #2d2a28; border-radius: 20px; display: flex; padding: 15px; box-sizing: border-box; position: relative; color: white; box-shadow: 0 15px 50px rgba(0,0,0,0.8); }
 .lp { width: 170px; border-right: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.vi { width: 130px; height: 130px; border-radius: 50%; background: radial-gradient(circle, #222 10%, #111 15%, #000 70%); border: 5px solid #000; position: relative; animation: r 4s linear infinite; animation-play-state: paused; }
-.vi::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 125px; height: 125px; border-radius: 50%; background: conic-gradient(var(--p), var(--s), var(--p)); opacity: 0.3; }
+.vi { width: 135px; height: 135px; border-radius: 50%; background: #000; border: 5px solid #111; position: relative; animation: r 6s linear infinite; animation-play-state: paused; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+.vi img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+.vi::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: conic-gradient(from 0deg, var(--p), var(--s), var(--p)); mix-blend-mode: overlay; opacity: 0.4; }
 @keyframes r { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
 .rp { flex: 1; padding-left: 15px; display: flex; flex-direction: column; }
-.sc { background: #050505; border: 2px solid #222; border-radius: 10px; padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
-.tt { font-family: monospace; color: var(--p); font-size: 11px; height: 15px; overflow: hidden; text-transform: uppercase; }
-.tm { color: var(--s); font-size: 20px; font-weight: bold; font-family: monospace; margin-top: 5px; }
-.vz { display: flex; align-items: flex-end; gap: 2px; height: 30px; margin: 10px 0; }
-.br { flex: 1; background: var(--s); height: 2px; transition: 0.1s; }
-.vb { display: flex; align-items: center; gap: 10px; font-size: 10px; color: #555; }
-.controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
-.btn { background: #2a2826; border: 1px solid #444; color: var(--s); padding: 8px; cursor: pointer; border-radius: 5px; font-size: 10px; font-weight: bold; }
-.btn.active { color: var(--p); border-color: var(--p); box-shadow: 0 0 8px var(--p); }
-#pl { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; padding: 20px; box-sizing: border-box; z-index: 10; }
+.sc { background: #050505; border: 2px solid #222; border-radius: 12px; padding: 12px; flex-grow: 1; display: flex; flex-direction: column; position: relative; }
+.tt { font-family: monospace; color: var(--p); font-size: 11px; height: 15px; overflow: hidden; text-transform: uppercase; letter-spacing: 1px; }
+.tm { color: var(--s); font-size: 22px; font-weight: bold; font-family: monospace; margin: 5px 0; }
+.vz { display: flex; align-items: flex-end; gap: 2px; height: 35px; margin: 8px 0; }
+.br { flex: 1; background: var(--s); height: 2px; transition: 0.1s; box-shadow: 0 0 5px var(--s); }
+.vb { display: flex; align-items: center; gap: 10px; font-size: 10px; color: #555; font-weight: bold; }
+.controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 12px; }
+.btn { background: #252321; border: 1px solid #3d3b39; color: var(--s); padding: 9px; cursor: pointer; border-radius: 6px; font-size: 10px; font-weight: 900; transition: 0.2s; }
+.btn:hover { border-color: var(--s); }
+.btn.active { color: var(--p); border-color: var(--p); box-shadow: 0 0 10px var(--p); }
+#pl { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,10,10,0.98); display: none; padding: 20px; box-sizing: border-box; z-index: 10; border-radius: 16px; }
 </style>
 </head>
 <body>
 <div class="pb">
-    <div class="lp"><div class="vi" id="d"></div></div>
+    <div class="lp"><div class="vi" id="d"><img id="cv" src=""></div></div>
     <div class="rp">
         <div class="sc">
             <div class="tt" id="t">${i18n.none}</div>
@@ -148,33 +152,37 @@ body { background: transparent; margin: 0; display: flex; justify-content: cente
         </div>
     </div>
     <div id="pl">
-        <div style="display:flex; justify-content: space-between; color:var(--p); font-weight:bold;"><span>PLAYLIST</span><span onclick="l()" style="cursor:pointer; color:#fff">✕</span></div>
-        <div id="li" style="margin-top:15px; overflow-y:auto; height:170px; color:var(--s); font-size:13px;"></div>
+        <div style="display:flex; justify-content: space-between; color:var(--p); font-size: 12px; font-weight:bold; letter-spacing: 2px;"><span>PLAYLIST</span><span onclick="l()" style="cursor:pointer; color:#fff">✕</span></div>
+        <div id="li" style="margin-top:15px; overflow-y:auto; height:180px; color:var(--s); font-size:12px;"></div>
     </div>
 </div>
 <script>
-    const B = "${gh}";
+    const B = "${ghRaw}";
     const T = ${JSON.stringify(trackList)};
     let ci = 0, iP = false, iS = false;
     const a = new Audio();
-    const d = document.getElementById('d'), p = document.getElementById('p'), v = document.getElementById('v');
+    const d = document.getElementById('d'), p = document.getElementById('p'), v = document.getElementById('v'), cv = document.getElementById('cv');
     for(let i=0; i<25; i++) { let b=document.createElement('div'); b.className='br'; v.appendChild(b); }
-    function ld(i) { ci=i; a.src=B+T[ci].file; document.getElementById('t').innerText=T[ci].name; }
+    function ld(i) { 
+        ci=i; a.src=T[ci].file.startsWith('http') ? T[ci].file : B+T[ci].file; 
+        document.getElementById('t').innerText=T[ci].name;
+        cv.src = T[ci].img || 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=300';
+    }
     function o() { 
         if(iP) { a.pause(); p.innerText="▶"; d.style.animationPlayState="paused"; } 
-        else { a.play().then(()=>{ p.innerText="⏸"; d.style.animationPlayState="running"; }).catch(()=>alert("Error!")); }
+        else { a.play().then(()=>{ p.innerText="⏸"; d.style.animationPlayState="running"; }).catch(()=>alert("Error loading audio!")); }
         iP=!iP;
     }
     function m(s) { ci=iS?Math.floor(Math.random()*T.length):(ci+s+T.length)%T.length; ld(ci); if(iP) a.play(); }
     function f() { iS=!iS; document.getElementById('s').classList.toggle('active', iS); }
     function l() {
         const x=document.getElementById('pl'); x.style.display=x.style.display==='block'?'none':'block';
-        document.getElementById('li').innerHTML=T.map((t,i)=>\`<div onclick="ld(\${i});o();l();" style="padding:8px; border-bottom:1px solid #222; cursor:pointer; color:\${i===ci?'var(--p)':'var(--s)'}">\${t.name}</div>\`).join('');
+        document.getElementById('li').innerHTML=T.map((t,i)=>\`<div onclick="ld(\${i});o();l();" style="padding:10px; border-bottom:1px solid #222; cursor:pointer; color:\${i===ci?'var(--p)':'var(--s)'}">\${t.name}</div>\`).join('');
     }
     a.ontimeupdate=()=>{
         let mi=Math.floor(a.currentTime/60), se=Math.floor(a.currentTime%60);
-        document.getElementById('clock').innerText=\`\${mi}:\${se<10?'0':''}\${se}\`;
-        if(iP) document.querySelectorAll('.br').forEach(b=>b.style.height=(Math.random()*28+2)+"px");
+        document.getElementById('c').innerText=\`\${mi}:\${se<10?'0':''}\${se}\`;
+        if(iP) document.querySelectorAll('.br').forEach(b=>b.style.height=(Math.random()*30+2)+"px");
     };
     a.onended=()=>m(1);
     a.volume=0.7; ld(0);
@@ -184,8 +192,7 @@ body { background: transparent; margin: 0; display: flex; justify-content: cente
     }
 
     function showCode() {
-        const code = buildWidgetCode();
-        document.getElementById('codeArea').value = code;
+        document.getElementById('codeArea').value = buildWidgetCode();
         document.getElementById('overlay').style.display = 'block';
         document.getElementById('outputWrapper').style.display = 'block';
     }
@@ -195,7 +202,6 @@ body { background: transparent; margin: 0; display: flex; justify-content: cente
         document.getElementById('outputWrapper').style.display = 'none';
     }
 
-    // Живое превью в редакторе
     function updatePreview() {
         const widgetCode = buildWidgetCode();
         const blob = new Blob([widgetCode], {type: 'text/html'});
@@ -203,7 +209,6 @@ body { background: transparent; margin: 0; display: flex; justify-content: cente
         document.getElementById('preview-frame').innerHTML = `<iframe src="${url}" width="500" height="300" style="border:none; background: transparent;"></iframe>`;
     }
 
-    // Слушатели изменений для превью
     document.querySelectorAll('input, select, textarea').forEach(el => {
         el.addEventListener('input', updatePreview);
     });
