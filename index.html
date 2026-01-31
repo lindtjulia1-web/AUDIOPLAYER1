@@ -1,175 +1,198 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Audioplayer Genially - Professional Edition</title>
+    <title>Widget-Konfigurator für Genially</title>
     <style>
-        :root { --accent: #ff0055; --cyan: #00d4ff; }
-        body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+        :root { --p-color: #ff0055; --s-color: #00d4ff; }
+        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: #eee; margin: 0; display: flex; height: 100vh; }
         
-        .player-body {
-            width: 490px; height: 280px;
-            background: #1a1817; border: 4px solid #2d2a28; border-radius: 20px;
-            display: flex; padding: 15px; box-sizing: border-box; position: relative;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-        }
-
-        /* Диск */
-        .left-part { width: 170px; border-right: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .vinyl {
-            width: 130px; height: 130px; border-radius: 50%;
-            background: radial-gradient(circle, #222 10%, #111 15%, #000 70%);
-            border: 5px solid #000; position: relative;
-            animation: rotate 4s linear infinite; animation-play-state: paused;
-        }
-        .vinyl::after {
-            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 125px; height: 125px; border-radius: 50%;
-            background: conic-gradient(var(--accent), var(--cyan), var(--accent)); opacity: 0.3;
-        }
-        @keyframes rotate { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
-
-        /* Экран и управление */
-        .right-part { flex: 1; padding-left: 15px; display: flex; flex-direction: column; }
-        .screen {
-            background: #050505; border: 2px solid #222; border-radius: 10px;
-            padding: 10px; flex-grow: 1; display: flex; flex-direction: column;
-        }
-        .track-title { font-family: monospace; color: var(--accent); font-size: 11px; margin-bottom: 5px; height: 15px; overflow: hidden; }
-        .time { color: var(--cyan); font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+        /* Панель настроек */
+        .sidebar { width: 400px; background: #1e1e1e; padding: 25px; border-right: 1px solid #333; overflow-y: auto; box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
+        .sidebar h2 { color: var(--s-color); font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; }
         
-        /* Визуализатор */
-        .viz { display: flex; align-items: flex-end; gap: 2px; height: 30px; margin-bottom: 10px; }
-        .bar { flex: 1; background: var(--cyan); height: 2px; transition: 0.1s; box-shadow: 0 0 5px var(--cyan); }
+        .field { margin-bottom: 20px; }
+        label { display: block; font-size: 0.8rem; color: #888; margin-bottom: 8px; text-transform: uppercase; }
+        input, select, textarea { width: 100%; background: #2a2a2a; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 6px; box-sizing: border-box; }
+        input[type="color"] { height: 40px; padding: 2px; cursor: pointer; }
+        
+        /* Превью зона */
+        .main { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #252525; position: relative; }
+        .preview-label { position: absolute; top: 20px; color: #555; font-weight: bold; letter-spacing: 5px; }
 
-        /* Регулятор громкости */
-        .volume-box { display: flex; align-items: center; gap: 10px; margin: 5px 0; color: #777; font-size: 12px; }
-        input[type=range] { flex-grow: 1; accent-color: var(--accent); cursor: pointer; height: 4px; }
-
-        .controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
-        .btn {
-            background: #2a2826; border: 1px solid #444; color: var(--cyan); 
-            padding: 8px; cursor: pointer; border-radius: 5px; font-size: 12px;
-        }
-        .btn:hover { border-color: var(--accent); }
-        .btn.active { color: var(--accent); box-shadow: 0 0 8px var(--accent); }
-
-        #playlist {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); display: none; padding: 20px; box-sizing: border-box; z-index: 10;
-        }
+        /* Кнопки */
+        .btn-gen { background: var(--p-color); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-top: 10px; transition: 0.3s; }
+        .btn-gen:hover { filter: brightness(1.2); box-shadow: 0 0 15px var(--p-color); }
+        
+        #finalCode { margin-top: 15px; height: 100px; font-family: monospace; font-size: 10px; background: #000; color: #0f0; display: none; }
     </style>
 </head>
 <body>
 
-<div class="player-body">
-    <div class="left-part">
-        <div class="vinyl" id="disk"></div>
-        <div style="font-size: 9px; color: #555; margin-top: 10px;">DEUTSCH V.2.0</div>
+<div class="sidebar">
+    <h2>Konfigurator</h2>
+    
+    <div class="field">
+        <label>GitHub User & Repo</label>
+        <input type="text" id="ghPath" placeholder="user/repo" value="lindtjulia1-web/AUDIOPLAYER">
     </div>
 
-    <div class="right-part">
-        <div class="screen">
-            <div class="track-title" id="title">KEIN TRACK</div>
-            <div class="time" id="clock">00:00</div>
-            <div class="viz" id="viz"></div>
-            
-            <div class="volume-box">
-                <span>Lauts.</span>
-                <input type="range" id="vol" min="0" max="1" step="0.01" value="0.7" oninput="setVol()">
-            </div>
-        </div>
-
-        <div class="controls">
-            <button class="btn" onclick="change(-1)">⏮</button>
-            <button class="btn" id="playBtn" onclick="toggle()">▶</button>
-            <button class="btn" onclick="change(1)">⏭</button>
-            <button class="btn" onclick="toggleList()">LISTE</button>
-            <button class="btn" id="shufBtn" onclick="toggleShuf()" style="grid-column: span 2;">ZUFALL</button>
-            <button class="btn" onclick="location.reload()" style="grid-column: span 2;">RESET</button>
-        </div>
+    <div class="field">
+        <label>Farbe 1 (Akzent)</label>
+        <input type="color" id="clr1" value="#ff0055" onchange="updatePreview()">
     </div>
 
-    <div id="playlist">
-        <div style="display:flex; justify-content: space-between; color:var(--accent); font-weight:bold;">
-            <span>PLAYLIST</span><span onclick="toggleList()" style="cursor:pointer; color:#fff">✕</span>
-        </div>
-        <div id="list-items" style="margin-top:15px; overflow-y:auto; height:170px; color:var(--cyan); font-size:13px;"></div>
+    <div class="field">
+        <label>Farbe 2 (Cyan)</label>
+        <input type="color" id="clr2" value="#00d4ff" onchange="updatePreview()">
+    </div>
+
+    <div class="field">
+        <label>Sprache / Интерфейс</label>
+        <select id="lang">
+            <option value="de">Deutsch</option>
+            <option value="ru">Русский</option>
+            <option value="en">English</option>
+        </select>
+    </div>
+
+    <div class="field">
+        <label>Trackliste (Name|file.mp3)</label>
+        <textarea id="tracks" rows="4">Track 01|track1.mp3&#10;Track 02|track2.mp3</textarea>
+    </div>
+
+    <button class="btn-gen" onclick="generateCode()">CODE GENERIEREN</button>
+    
+    <textarea id="finalCode" readonly onclick="this.select()"></textarea>
+    <p id="copyHint" style="display:none; font-size:10px; color:var(--s-color); text-align:center;">Код скопирован! Вставьте его в Genially (Insert -> Others)</p>
+</div>
+
+<div class="main">
+    <div class="preview-label">PREVIEW</div>
+    <div id="preview-container" style="transform: scale(0.9);">
+        <p style="color: #666;">Нажмите "Code generieren", чтобы увидеть результат</p>
     </div>
 </div>
 
 <script>
-    // --- Прямые ссылки на ваши файлы ---
-    const BASE_URL = "https://raw.githubusercontent.com/lindtjulia1-web/AUDIOPLAYER/main/";
-    const tracks = [
-        { name: "Track 01", file: "1.mp3" }, 
-        { name: "Track 02", file: "2.mp3" }, 
-        { name: "Track 03", file: "3.mp3" }, 
-        { name: "Track 04", file: "4.mp3" }
-    ];
+    function updatePreview() {
+        // Меняем переменные в реальном времени для превью редактора
+        document.documentElement.style.setProperty('--p-color', document.getElementById('clr1').value);
+        document.documentElement.style.setProperty('--s-color', document.getElementById('clr2').value);
+    }
 
-    let current = 0, isPlaying = false, isShuf = false;
+    function generateCode() {
+        const gh = document.getElementById('ghPath').value;
+        const c1 = document.getElementById('clr1').value;
+        const c2 = document.getElementById('clr2').value;
+        const lang = document.getElementById('lang').value;
+        const rawTracks = document.getElementById('tracks').value.split('\n').filter(t => t.includes('|'));
+        
+        const trackList = rawTracks.map(t => {
+            const p = t.split('|');
+            return { name: p[0].trim(), file: p[1].trim() };
+        });
+
+        const dict = {
+            de: { list: "LISTE", rand: "ZUFALL", none: "KEIN TRACK", vol: "Lauts." },
+            ru: { list: "СПИСОК", rand: "РАНДОМ", none: "НЕТ ТРЕКА", vol: "Громк." },
+            en: { list: "LIST", rand: "SHUFFLE", none: "NO TRACK", vol: "Vol." }
+        };
+        const l = dict[lang];
+
+        // Генерируем финальный монолитный код для Genially
+        const widget = `<!DOCTYPE html>
+<html lang="${lang}">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        :root { --accent: ${c1}; --cyan: ${c2}; }
+        body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; }
+        .player-body { width: 490px; height: 280px; background: #1a1817; border: 4px solid #2d2a28; border-radius: 20px; display: flex; padding: 15px; box-sizing: border-box; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.8); color: white; }
+        .left-part { width: 170px; border-right: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .vinyl { width: 130px; height: 130px; border-radius: 50%; background: radial-gradient(circle, #222 10%, #111 15%, #000 70%); border: 5px solid #000; position: relative; animation: rotate 4s linear infinite; animation-play-state: paused; }
+        .vinyl::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 125px; height: 125px; border-radius: 50%; background: conic-gradient(var(--accent), var(--cyan), var(--accent)); opacity: 0.3; }
+        @keyframes rotate { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
+        .right-part { flex: 1; padding-left: 15px; display: flex; flex-direction: column; }
+        .screen { background: #050505; border: 2px solid #222; border-radius: 10px; padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
+        .track-title { font-family: monospace; color: var(--accent); font-size: 11px; margin-bottom: 5px; height: 15px; overflow: hidden; text-transform: uppercase; }
+        .time { color: var(--cyan); font-size: 20px; font-weight: bold; margin-bottom: 5px; font-family: monospace; }
+        .viz { display: flex; align-items: flex-end; gap: 2px; height: 30px; margin-bottom: 10px; }
+        .bar { flex: 1; background: var(--cyan); height: 2px; transition: 0.1s; box-shadow: 0 0 5px var(--cyan); }
+        .volume-box { display: flex; align-items: center; gap: 10px; margin: 5px 0; color: #777; font-size: 12px; }
+        input[type=range] { flex-grow: 1; accent-color: var(--accent); cursor: pointer; height: 4px; }
+        .controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
+        .btn { background: #2a2826; border: 1px solid #444; color: var(--cyan); padding: 8px; cursor: pointer; border-radius: 5px; font-size: 10px; font-weight: bold; }
+        .btn.active { color: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px var(--accent); }
+        #playlist { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; padding: 20px; box-sizing: border-box; z-index: 10; }
+    </style>
+</head>
+<body>
+<div class="player-body">
+    <div class="left-part"><div class="vinyl" id="disk"></div></div>
+    <div class="right-part">
+        <div class="screen">
+            <div class="track-title" id="title">${l.none}</div>
+            <div class="time" id="clock">00:00</div>
+            <div class="viz" id="viz"></div>
+            <div class="volume-box"><span>${l.vol}</span><input type="range" id="vol" min="0" max="1" step="0.01" value="0.7" oninput="setVol()"></div>
+        </div>
+        <div class="controls">
+            <button class="btn" onclick="change(-1)">⏮</button>
+            <button class="btn" id="playBtn" onclick="toggle()">▶</button>
+            <button class="btn" onclick="change(1)">⏭</button>
+            <button class="btn" onclick="toggleList()">${l.list}</button>
+            <button class="btn" id="shufBtn" onclick="toggleShuf()" style="grid-column: span 2;">${l.rand}</button>
+            <button class="btn" onclick="location.reload()" style="grid-column: span 2;">RESET</button>
+        </div>
+    </div>
+    <div id="playlist">
+        <div style="display:flex; justify-content: space-between; color:var(--accent); font-weight:bold;"><span>PLAYLIST</span><span onclick="toggleList()" style="cursor:pointer; color:#fff">✕</span></div>
+        <div id="list-items" style="margin-top:15px; overflow-y:auto; height:170px; color:var(--cyan); font-size:13px;"></div>
+    </div>
+</div>
+<script>
+    const BASE = "https://raw.githubusercontent.com/${gh}/main/";
+    const tracks = ${JSON.stringify(trackList)};
+    let cur = 0, isP = false, isS = false;
     const audio = new Audio();
     const disk = document.getElementById('disk');
     const playBtn = document.getElementById('playBtn');
-    
-    // Создание баров визуализатора
     const viz = document.getElementById('viz');
-    for(let i=0; i<25; i++) {
-        let b = document.createElement('div'); b.className = 'bar'; viz.appendChild(b);
+    for(let i=0; i<25; i++) { let b = document.createElement('div'); b.className = 'bar'; viz.appendChild(b); }
+    function load(idx) { cur = idx; audio.src = BASE + tracks[cur].file; document.getElementById('title').innerText = tracks[cur].name; }
+    function toggle() { 
+        if(isP) { audio.pause(); playBtn.innerText = "▶"; disk.style.animationPlayState = "paused"; } 
+        else { audio.play().then(() => { playBtn.innerText = "⏸"; disk.style.animationPlayState = "running"; }).catch(() => alert("Error!")); }
+        isP = !isP;
     }
-
-    function load(idx) {
-        current = idx;
-        audio.src = BASE_URL + tracks[current].file;
-        document.getElementById('title').innerText = tracks[current].name;
-    }
-
-    function toggle() {
-        if(isPlaying) {
-            audio.pause(); playBtn.innerText = "▶"; disk.style.animationPlayState = "paused";
-        } else {
-            audio.play().then(() => {
-                playBtn.innerText = "⏸"; disk.style.animationPlayState = "running";
-            }).catch(() => alert("Fehler beim Laden!"));
-        }
-        isPlaying = !isPlaying;
-    }
-
-    function setVol() {
-        audio.volume = document.getElementById('vol').value;
-    }
-
-    function change(s) {
-        current = isShuf ? Math.floor(Math.random()*tracks.length) : (current + s + tracks.length) % tracks.length;
-        load(current); if(isPlaying) audio.play();
-    }
-
-    function toggleShuf() {
-        isShuf = !isShuf; document.getElementById('shufBtn').classList.toggle('active', isShuf);
-    }
-
+    function setVol() { audio.volume = document.getElementById('vol').value; }
+    function change(s) { cur = isS ? Math.floor(Math.random()*tracks.length) : (cur+s+tracks.length)%tracks.length; load(cur); if(isP) audio.play(); }
+    function toggleShuf() { isS = !isS; document.getElementById('shufBtn').classList.toggle('active', isS); }
     function toggleList() {
-        const p = document.getElementById('playlist');
-        p.style.display = p.style.display === 'block' ? 'none' : 'block';
-        document.getElementById('list-items').innerHTML = tracks.map((t, i) => `
-            <div onclick="load(${i}); toggle(); toggleList();" 
-                 style="padding:8px; border-bottom:1px solid #222; cursor:pointer; color:${i===current?'#ff0055':'#00d4ff'}">
-                ${t.name}
-            </div>`).join('');
+        const p = document.getElementById('playlist'); p.style.display = p.style.display==='block' ? 'none' : 'block';
+        document.getElementById('list-items').innerHTML = tracks.map((t, i) => \`<div onclick="load(\${i}); toggle(); toggleList();" style="padding:8px; border-bottom:1px solid #222; cursor:pointer; color:\${i===cur?'var(--accent)':'var(--cyan)'}">\${t.name}</div>\`).join('');
     }
-
     audio.ontimeupdate = () => {
-        let m = Math.floor(audio.currentTime / 60), s = Math.floor(audio.currentTime % 60);
-        document.getElementById('clock').innerText = `${m}:${s<10?'0':''}${s}`;
-        if(isPlaying) {
-            document.querySelectorAll('.bar').forEach(b => b.style.height = (Math.random()*28+2)+"px");
-        }
+        let m=Math.floor(audio.currentTime/60), s=Math.floor(audio.currentTime%60);
+        document.getElementById('clock').innerText = \`\${m}:\${s<10?'0':''}\${s}\`;
+        if(isP) document.querySelectorAll('.bar').forEach(b => b.style.height = (Math.random()*28+2)+"px");
     };
-
     audio.onended = () => change(1);
-    setVol(); // Установка начальной громкости
-    load(0);
+    setVol(); load(0);
+<\/script>
+</body>
+</html>`;
+
+        document.getElementById('finalCode').value = widget;
+        document.getElementById('finalCode').style.display = 'block';
+        document.getElementById('copyHint').style.display = 'block';
+        
+        // Обновляем превью через Blob
+        const blob = new Blob([widget], {type: 'text/html'});
+        const url = URL.createObjectURL(blob);
+        document.getElementById('preview-container').innerHTML = `<iframe src="${url}" width="500" height="300" style="border:none;"></iframe>`;
+    }
 </script>
 </body>
 </html>
