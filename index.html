@@ -2,26 +2,19 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Genially Player Constructor v2</title>
+    <title>Genially Player Final Fix</title>
     <style>
         :root { --accent: #ff0055; --bg: #0b0b0d; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        
         .sidebar { width: 380px; background: #16161a; padding: 25px; border-right: 1px solid #2d2d33; overflow-y: auto; display: flex; flex-direction: column; }
-        .main { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #1a1a1a, #000); position: relative; }
-        
-        h1 { font-size: 1rem; color: #00d4ff; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; }
-        .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        label { font-size: 0.7rem; color: #666; text-transform: uppercase; font-weight: bold; }
-        .hint-btn { font-size: 10px; color: #00d4ff; cursor: pointer; text-decoration: underline; background: none; border: none; padding: 0; }
-        
-        input, select, textarea { width: 100%; background: #222; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; }
-        
-        .btn-gen { background: var(--accent); color: #fff; border: none; padding: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
-        .btn-gen:hover { transform: translateY(-2px); box-shadow: 0 5px 20px var(--accent); }
-
-        #modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; background: #111; padding: 25px; border-radius: 15px; border: 1px solid #333; display: none; z-index: 1000; box-shadow: 0 0 100px #000; }
-        #codeOut { width: 100%; height: 200px; background: #000; color: #0f9; font-family: monospace; font-size: 11px; padding: 10px; border: 1px solid #222; margin-top: 15px; word-break: break-all; }
+        .main { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #1a1a1a, #000); }
+        h1 { font-size: 1rem; color: #00d4ff; text-transform: uppercase; letter-spacing: 2px; }
+        label { display: block; font-size: 0.7rem; color: #666; margin: 10px 0 5px; font-weight: bold; }
+        input, textarea { width: 100%; background: #222; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; box-sizing: border-box; }
+        .btn-gen { background: var(--accent); color: #fff; border: none; padding: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.3s; }
+        .btn-gen:hover { transform: scale(1.02); box-shadow: 0 0 20px var(--accent); }
+        #modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; background: #111; padding: 25px; border-radius: 15px; border: 1px solid #333; display: none; z-index: 1000; }
+        #codeOut { width: 100%; height: 200px; background: #000; color: #0f9; font-family: monospace; font-size: 11px; margin-top: 15px; word-break: break-all; }
         .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); display:none; z-index: 999; }
     </style>
 </head>
@@ -29,154 +22,102 @@
 
 <div class="sidebar">
     <h1>Configurator</h1>
-    
-    <label>GitHub Path</label>
+    <label>GitHub Root URL</label>
     <input type="text" id="ghPath" value="https://lindtjulia1-web.github.io/AUDIOPLAYER1/">
     
-    <div style="display:flex; gap:10px;">
-        <div style="flex:1"><label>Accent 1</label><input type="color" id="clr1" value="#ff0055"></div>
-        <div style="flex:1"><label>Accent 2</label><input type="color" id="clr2" value="#00d4ff"></div>
-    </div>
-
-    <label>Sprache</label>
-    <select id="lang">
-        <option value="de">Deutsch</option>
-        <option value="ru">Русский</option>
-        <option value="en">English</option>
-    </select>
-
-    <div class="label-row">
-        <label>Playlist</label>
-        <button class="hint-btn" onclick="addExample()">Пример заполнения</button>
-    </div>
-    <textarea id="tracks" rows="10" placeholder="Название | файл.mp3"></textarea>
+    <label>Playlist (Имя | файл)</label>
+    <textarea id="tracks" rows="10">Track 01 | 1.mp3
+Track 02 | 2.mp3
+Track 03 | 3.mp3
+Track 04 | 4.mp3</textarea>
 
     <button class="btn-gen" onclick="generate()">CODE GENERIEREN</button>
 </div>
 
-<div class="main">
-    <div id="preview"></div>
-</div>
+<div class="main"><div id="preview"></div></div>
 
 <div class="overlay" id="overlay" onclick="closeAll()"></div>
 <div id="modal">
-    <h3 style="margin:0; color:var(--accent)">Iframe Code:</h3>
+    <h3 style="margin:0; color:var(--accent)">Iframe Code for Genially:</h3>
     <textarea id="codeOut" readonly></textarea>
-    <button class="btn-gen" style="margin-top:10px;" onclick="closeAll()">OK</button>
+    <button class="btn-gen" style="width:100%" onclick="closeAll()">OK</button>
 </div>
 
 <script>
-    function addExample() {
-        document.getElementById('tracks').value = "Track 01 | track1.mp3\nTrack 02 | track2.mp3\nTrack 03 | track3.mp3";
-    }
-
     function generate() {
-        // Учет нового пути репозитория AUDIOPLAYER1
-        const ghRaw = document.getElementById('ghPath').value
-            .replace('github.io/', 'raw.githubusercontent.com/')
-            .replace('/AUDIOPLAYER1/', '/AUDIOPLAYER1/main/');
-            
-        const c1 = document.getElementById('clr1').value;
-        const c2 = document.getElementById('clr2').value;
-        const lang = document.getElementById('lang').value;
+        // Умное преобразование пути для прямого доступа к файлам
+        const ghPath = document.getElementById('ghPath').value;
+        const user = "lindtjulia1-web";
+        const repo = "AUDIOPLAYER1";
+        const ghRaw = `https://raw.githubusercontent.com/${user}/${repo}/main/`;
+
         const tracksArr = document.getElementById('tracks').value.split('\n').filter(t => t.includes('|')).map(t => {
             const p = t.split('|');
             return { n: p[0].trim(), f: p[1].trim() };
         });
 
-        const i18n = {
-            de: { l: "LISTE", r: "ZUFALL", v: "Lauts.", n: "KEIN TRACK" },
-            ru: { l: "СПИСОК", r: "РАНДОМ", v: "ГРОМК.", n: "НЕТ ТРЕКА" },
-            en: { l: "LIST", r: "SHUFFLE", v: "VOL.", n: "NO TRACK" }
-        }[lang];
-
         const playerHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-:root { --p: ${c1}; --s: ${c2}; }
-body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; }
-.pb { width: 480px; height: 270px; background: #1a1817; border: 4px solid #2d2a28; border-radius: 20px; display: flex; padding: 15px; box-sizing: border-box; position: relative; color: white; }
-.lp { width: 160px; border-right: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.vi { width: 125px; height: 125px; border-radius: 50%; background: radial-gradient(circle, #222 10%, #111 15%, #000 70%); border: 5px solid #000; position: relative; animation: r 4s linear infinite; animation-play-state: paused; }
-.vi::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(var(--p), var(--s), var(--p)); opacity: 0.3; }
-@keyframes r { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
-.rp { flex: 1; padding-left: 15px; display: flex; flex-direction: column; }
-.sc { background: #050505; border: 2px solid #222; border-radius: 12px; padding: 12px; flex: 1; display: flex; flex-direction: column; }
-.tt { color: var(--p); font-size: 10px; text-transform: uppercase; height: 14px; overflow: hidden; font-family: monospace; }
-.tm { color: var(--s); font-size: 22px; font-weight: bold; margin: 5px 0; font-family: monospace; }
-.vz { display: flex; align-items: flex-end; gap: 2px; height: 35px; margin: 5px 0; }
-.br { flex: 1; background: var(--s); height: 2px; box-shadow: 0 0 5px var(--s); }
-.vb { display: flex; align-items: center; gap: 8px; font-size: 10px; color: #555; }
-.controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
-.btn { background: #252321; border: 1px solid #3d3b39; color: var(--s); padding: 8px; cursor: pointer; border-radius: 6px; font-size: 9px; font-weight: bold; }
-.btn.active { color: var(--p); border-color: var(--p); }
-#pl { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); display: none; padding: 20px; box-sizing: border-box; z-index: 10; border-radius: 20px; }
-</style></head><body>
-<div class="pb">
-    <div class="lp"><div class="vi" id="disk"></div></div>
-    <div class="rp">
-        <div class="sc">
-            <div class="tt" id="title">${i18n.n}</div>
-            <div class="tm" id="clock">00:00</div>
-            <div class="vz" id="viz"></div>
-            <div class="vb"><span>${i18n.v}</span><input type="range" id="vol" min="0" max="1" step="0.01" value="0.7" oninput="audio.volume=this.value" style="flex:1; accent-color:var(--p);"></div>
+        :root { --p: #ff0055; --s: #00d4ff; }
+        body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; color: white; }
+        .pb { width: 480px; height: 270px; background: #1a1817; border: 4px solid #2d2a28; border-radius: 20px; display: flex; padding: 15px; box-sizing: border-box; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .lp { width: 160px; border-right: 1px solid #333; display: flex; justify-content: center; align-items: center; }
+        .vi { width: 125px; height: 125px; border-radius: 50%; background: radial-gradient(circle, #222, #000); border: 4px solid #111; position: relative; animation: r 4s linear infinite; animation-play-state: paused; }
+        .vi::after { content:''; position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; background: conic-gradient(var(--p), var(--s), var(--p)); opacity: 0.2; }
+        @keyframes r { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
+        .rp { flex: 1; padding-left: 15px; display: flex; flex-direction: column; }
+        .sc { background: #050505; border: 2px solid #222; border-radius: 12px; padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .tm { color: var(--s); font-size: 28px; font-weight: bold; font-family: monospace; margin: 5px 0; }
+        .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 12px; }
+        .btn { background: #252321; border: 1px solid #3d3b39; color: var(--s); padding: 10px; cursor: pointer; border-radius: 6px; font-size: 10px; font-weight: bold; transition: 0.2s; }
+        .btn:hover { border-color: var(--s); }
+        #pl { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); display: none; padding: 20px; box-sizing: border-box; z-index: 10; border-radius: 20px; }
+        .li-item { padding: 8px; border-bottom: 1px solid #222; cursor: pointer; color: var(--s); font-size: 12px; }
+        </style></head><body>
+        <div class="pb">
+            <div class="lp"><div class="vi" id="disk"></div></div>
+            <div class="rp">
+                <div class="sc"><div id="title" style="font-size:10px; color:var(--p); text-transform: uppercase;">READY</div><div class="tm" id="clock">00:00</div></div>
+                <div class="controls">
+                    <button class="btn" onclick="move(-1)">⏮</button>
+                    <button class="btn" id="pBtn" onclick="toggle()">▶</button>
+                    <button class="btn" onclick="move(1)">⏭</button>
+                    <button class="btn" onclick="showL()" style="grid-column: span 3;">LISTE</button>
+                </div>
+            </div>
+            <div id="pl"><div style="display:flex; justify-content: space-between; margin-bottom:10px;"><b style="color:var(--p)">PLAYLIST</b><span onclick="showL()" style="cursor:pointer">✕</span></div><div id="list"></div></div>
         </div>
-        <div class="controls">
-            <button class="btn" onclick="move(-1)">⏮</button>
-            <button class="btn" id="playBtn" onclick="toggle()">▶</button>
-            <button class="btn" onclick="move(1)">⏭</button>
-            <button class="btn" onclick="showL()">${i18n.l}</button>
-            <button class="btn" id="shufBtn" onclick="shuf()" style="grid-column: span 2;">${i18n.r}</button>
-            <button class="btn" onclick="location.reload()" style="grid-column: span 2;">RESET</button>
-        </div>
-    </div>
-    <div id="pl">
-        <div style="display:flex; justify-content: space-between; color:var(--p); font-size: 12px;"><b>PLAYLIST</b><span onclick="showL()" style="cursor:pointer;">✕</span></div>
-        <div id="list" style="margin-top:10px; overflow-y:auto; height:180px; font-size:12px;"></div>
-    </div>
-</div>
-<script>
-    const B = "${ghRaw}", T = ${JSON.stringify(tracksArr)};
-    let ci = 0, iP = false, iS = false;
-    const audio = new Audio();
-    const disk = document.getElementById('disk'), pBtn = document.getElementById('playBtn'), viz = document.getElementById('viz');
-    for(let i=0; i<25; i++) { let b=document.createElement('div'); b.className='br'; viz.appendChild(b); }
-    function load(i) { 
-        if(!T[i]) return;
-        ci=i; audio.src=T[ci].f.startsWith('http') ? T[ci].f : B+T[ci].f; 
-        document.getElementById('title').innerText=T[ci].n;
-    }
-    function toggle() { 
-        if(iP) { audio.pause(); pBtn.innerText="▶"; disk.style.animationPlayState="paused"; } 
-        else { audio.play().then(()=>{ pBtn.innerText="⏸"; disk.style.animationPlayState="running"; }).catch(()=>alert("Error! Check files in AUDIOPLAYER1")); }
-        iP=!iP;
-    }
-    function move(s) { ci=iS?Math.floor(Math.random()*T.length):(ci+s+T.length)%T.length; load(ci); if(iP) audio.play(); }
-    function shuf() { iS=!iS; document.getElementById('shufBtn').classList.toggle('active', iS); }
-    function showL() {
-        const x=document.getElementById('pl'); x.style.display=x.style.display==='block'?'none':'block';
-        document.getElementById('list').innerHTML=T.map((t,i)=>\`<div onclick="load(\${i});toggle();showL();" style="padding:8px; border-bottom:1px solid #222; cursor:pointer; color:\${i===ci?'var(--p)':'var(--s)'}">\${t.n}</div>\`).join('');
-    }
-    audio.ontimeupdate=()=>{
-        let mi=Math.floor(audio.currentTime/60), se=Math.floor(audio.currentTime%60);
-        document.getElementById('clock').innerText=\`\${mi}:\${se<10?'0':''}\${se}\`;
-        if(iP) document.querySelectorAll('.br').forEach(b=>b.style.height=(Math.random()*30+2)+"px");
-    };
-    audio.onended=()=>move(1);
-    audio.volume=0.7; load(0);
-<\/script></body></html>`;
+        <script>
+            const B = "${ghRaw}", T = ${JSON.stringify(tracksArr)};
+            let ci = 0, iP = false; const audio = new Audio();
+            const disk = document.getElementById('disk'), pBtn = document.getElementById('pBtn');
+            function load(i) { 
+                ci=i; audio.src = T[ci].f.startsWith('http') ? T[ci].f : B + T[ci].f;
+                document.getElementById('title').innerText = T[ci].n;
+            }
+            function toggle() { 
+                if(iP) { audio.pause(); pBtn.innerText="▶"; disk.style.animationPlayState="paused"; } 
+                else { audio.play().then(() => { pBtn.innerText="⏸"; disk.style.animationPlayState="running"; }).catch(e => alert("Error: File not found at " + B + T[ci].f)); }
+                iP=!iP;
+            }
+            function move(s) { ci=(ci+s+T.length)%T.length; load(ci); if(iP) audio.play(); }
+            function showL() { const x=document.getElementById('pl'); x.style.display=x.style.display==='block'?'none':'block'; 
+                document.getElementById('list').innerHTML=T.map((t,i)=>"<div class='li-item' onclick='load("+i+");toggle();showL()'>"+t.n+"</div>").join('');
+            }
+            audio.ontimeupdate=()=> { 
+                let m=Math.floor(audio.currentTime/60), s=Math.floor(audio.currentTime%60);
+                document.getElementById('clock').innerText = m + ":" + (s<10?'0':'') + s;
+            };
+            audio.onended = () => move(1);
+            load(0);
+        <\/script></body></html>`;
 
         const base64Code = btoa(unescape(encodeURIComponent(playerHTML)));
-        const finalIframe = `<iframe width="500" height="300" src="data:text/html;base64,${base64Code}" frameborder="0" scrolling="no" style="background: transparent;"></iframe>`;
-
+        const finalIframe = `<iframe width="500" height="300" src="data:text/html;base64,${base64Code}" frameborder="0" scrolling="no" style="background:transparent;"></iframe>`;
         document.getElementById('codeOut').value = finalIframe;
         document.getElementById('modal').style.display = 'block';
         document.getElementById('overlay').style.display = 'block';
-        document.getElementById('preview').innerHTML = finalIframe;
     }
-
-    function closeAll() {
-        document.getElementById('modal').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
-    }
+    function closeAll() { document.getElementById('modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
 </script>
 </body>
 </html>
