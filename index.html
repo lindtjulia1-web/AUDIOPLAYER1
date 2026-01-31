@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Genially Player Constructor (Classic)</title>
+    <title>Genially Player Constructor v2</title>
     <style>
         :root { --accent: #ff0055; --bg: #0b0b0d; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
@@ -11,7 +11,10 @@
         .main { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #1a1a1a, #000); position: relative; }
         
         h1 { font-size: 1rem; color: #00d4ff; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; }
-        label { display: block; font-size: 0.7rem; color: #666; margin-bottom: 5px; text-transform: uppercase; font-weight: bold; }
+        .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        label { font-size: 0.7rem; color: #666; text-transform: uppercase; font-weight: bold; }
+        .hint-btn { font-size: 10px; color: #00d4ff; cursor: pointer; text-decoration: underline; background: none; border: none; padding: 0; }
+        
         input, select, textarea { width: 100%; background: #222; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; }
         
         .btn-gen { background: var(--accent); color: #fff; border: none; padding: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
@@ -26,7 +29,8 @@
 
 <div class="sidebar">
     <h1>Configurator</h1>
-    <label>GitHub Root (Raw URL)</label>
+    
+    <label>GitHub Path</label>
     <input type="text" id="ghPath" value="https://lindtjulia1-web.github.io/AUDIOPLAYER1/">
     
     <div style="display:flex; gap:10px;">
@@ -41,9 +45,11 @@
         <option value="en">English</option>
     </select>
 
-    <label>Playlist (Titel | Dateiname.mp3)</label>
-    <textarea id="tracks" rows="10">Track 01 | track1.mp3
-Track 02 | track2.mp3</textarea>
+    <div class="label-row">
+        <label>Playlist</label>
+        <button class="hint-btn" onclick="addExample()">Пример заполнения</button>
+    </div>
+    <textarea id="tracks" rows="10" placeholder="Название | файл.mp3"></textarea>
 
     <button class="btn-gen" onclick="generate()">CODE GENERIEREN</button>
 </div>
@@ -54,14 +60,22 @@ Track 02 | track2.mp3</textarea>
 
 <div class="overlay" id="overlay" onclick="closeAll()"></div>
 <div id="modal">
-    <h3 style="margin:0; color:var(--accent)">Genially Iframe Code:</h3>
+    <h3 style="margin:0; color:var(--accent)">Iframe Code:</h3>
     <textarea id="codeOut" readonly></textarea>
     <button class="btn-gen" style="margin-top:10px;" onclick="closeAll()">OK</button>
 </div>
 
 <script>
+    function addExample() {
+        document.getElementById('tracks').value = "Track 01 | track1.mp3\nTrack 02 | track2.mp3\nTrack 03 | track3.mp3";
+    }
+
     function generate() {
-        const ghRaw = document.getElementById('ghPath').value.replace('github.io/', 'raw.githubusercontent.com/').replace('/AUDIOPLAYER/', '/AUDIOPLAYER/main/');
+        // Учет нового пути репозитория AUDIOPLAYER1
+        const ghRaw = document.getElementById('ghPath').value
+            .replace('github.io/', 'raw.githubusercontent.com/')
+            .replace('/AUDIOPLAYER1/', '/AUDIOPLAYER1/main/');
+            
         const c1 = document.getElementById('clr1').value;
         const c2 = document.getElementById('clr2').value;
         const lang = document.getElementById('lang').value;
@@ -126,12 +140,13 @@ body { background: transparent; margin: 0; display: flex; justify-content: cente
     const disk = document.getElementById('disk'), pBtn = document.getElementById('playBtn'), viz = document.getElementById('viz');
     for(let i=0; i<25; i++) { let b=document.createElement('div'); b.className='br'; viz.appendChild(b); }
     function load(i) { 
+        if(!T[i]) return;
         ci=i; audio.src=T[ci].f.startsWith('http') ? T[ci].f : B+T[ci].f; 
         document.getElementById('title').innerText=T[ci].n;
     }
     function toggle() { 
         if(iP) { audio.pause(); pBtn.innerText="▶"; disk.style.animationPlayState="paused"; } 
-        else { audio.play().then(()=>{ pBtn.innerText="⏸"; disk.style.animationPlayState="running"; }).catch(()=>alert("Error!")); }
+        else { audio.play().then(()=>{ pBtn.innerText="⏸"; disk.style.animationPlayState="running"; }).catch(()=>alert("Error! Check files in AUDIOPLAYER1")); }
         iP=!iP;
     }
     function move(s) { ci=iS?Math.floor(Math.random()*T.length):(ci+s+T.length)%T.length; load(ci); if(iP) audio.play(); }
